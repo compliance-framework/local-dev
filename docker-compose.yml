@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  configuration-service:
+    build: 
+      context: ${PWD}/configuration-service
+      dockerfile: ${PWD}/configuration-service/Dockerfile.dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+      - nats
+    environment:
+      - NATS_URI=nats://nats:4222
+      - MONGO_URI=mongodb://mongodb:27017
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+
+  plugin-registry:
+    build:
+      context: ${PWD}/assessment-runtime
+      dockerfile: test/registry/Dockerfile
+    ports:
+      - "3000:3000"
+  nats:
+    image: nats:latest
+    volumes:
+      - ${PWD}/assessment-runtime/test/config/messaging/nats-server.conf:/nats-server.conf
+    ports:
+      - "4222:4222"
+  assessment-runtime:
+    build:
+      context: ${PWD}/assessment-runtime
+      dockerfile: ${PWD}/assessment-runtime/test/runtime/Dockerfile
+    depends_on:
+      - plugin-registry
