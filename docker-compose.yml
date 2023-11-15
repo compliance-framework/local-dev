@@ -8,11 +8,10 @@ services:
     ports:
       - "8081:8080"
     depends_on:
-      - mongodb
-      - nats
+      - configuration-service
     environment:
-      - NATS_URI=nats://nats:4222
-      - MONGO_URI=mongodb://mongodb:27017
+      - VITE_CONFIGURATION_SERVICE_URL="http://infrastructure-configuration-service-1:8080/api"
+#      - VITE_CONFIGURATION_SERVICE_URL="http://localhost:8080/api"
   configuration-service:
     build: 
       context: ${PWD}/configuration-service
