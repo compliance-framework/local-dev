@@ -1,4 +1,4 @@
-setup: up
+setup:
 	@bash hack/setup.sh
 clone:
 	@bash hack/clone.sh

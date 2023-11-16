@@ -21,12 +21,12 @@ fi
 
 branch=$CONFIG_SERVICE_BRANCH
 if [ -z $branch ]; then branch="main"; fi
-cd configuration-service; git checkout $branch; git pull origin $branch; cd -
+cd configuration-service; git fetch; git checkout $branch; git pull origin $branch; cd -
 
 branch=$ASSESSMENT_RUNTIME_BRANCH
 if [ -z $branch ]; then branch="main"; fi
-cd assessment-runtime; git checkout $branch; git pull origin $branch; cd -
+cd assessment-runtime; git fetch; git checkout $branch; git pull origin $branch; cd -
 
 branch=$PORTAL_BRANCH
-if [ -z $branch ]; then branch="feature/assessment-result"; fi
-cd portal; git checkout $branch; git pull origin $branch; cd -
+if [ -z $branch ]; then branch="main"; fi
+cd portal; git fetch; git checkout $branch; git pull origin $branch; cd -
