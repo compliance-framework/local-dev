@@ -6,13 +6,14 @@ For now this is really a bunch of ugly bash scripts :) use cautiously.
 
 # Quickstart
 
-1. Make sure azure client variables are in shell:
+1. Make sure you have a docker-compatible socket environment set up with a functioning CLI, in addition, docker-compose.
+1. Make sure azure client variables are set:
 
-```
-export AZURE_CLIENT_ID=X
-export AZURE_CLIENT_SECRET=X
-export AZURE_TENANT_ID=X
+```zsh
+export AZURE_CLIENT_ID="[REPLACEME]"
+export AZURE_CLIENT_SECRET="[REPLACEME]"
+export AZURE_TENANT_ID="[REPLACEME]"
 ```
 
-2. `make up`
-3. `make setup`
+2. `make up` to checkout/update repos, build all the containers and spin them up
+3. `make setup` should populate the data
