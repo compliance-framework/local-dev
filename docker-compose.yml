@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 secrets:
   clientId:
     environment: "AZURE_CLIENT_ID"
@@ -8,7 +8,7 @@ secrets:
     environment: "AZURE_TENANT_ID"
 services:
   portal:
-    build: 
+    build:
       context: ${PWD}/portal
       dockerfile: ${PWD}/portal/Dockerfile
     ports:
@@ -19,9 +19,9 @@ services:
       - VITE_CONFIGURATION_SERVICE_URL="http://infrastructure-configuration-service-1:8080/api"
       #- VITE_CONFIGURATION_SERVICE_URL="http://localhost:8080/api"
   configuration-service:
-    build: 
+    build:
       context: ${PWD}/configuration-service
-      dockerfile: ${PWD}/configuration-service/Dockerfile.dev
+      dockerfile: ${PWD}/configuration-service/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -55,6 +55,6 @@ services:
     depends_on:
       - plugin-registry
     secrets:
-    - clientId
-    - clientSecret
-    - tenantId
+      - clientId
+      - clientSecret
+      - tenantId
