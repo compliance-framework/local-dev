@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 set -euo pipefail
 echo "Creating Plan"
 plan_id=$(curl -v localhost:8080/api/plan --header 'Content-Type: application/json' -X POST -d '{"title": "Sample Assessment Plan"}' | jq -r .id)

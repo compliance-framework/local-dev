@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 set -e
 if [ -d "configuration-service" ]; then
   echo "configuration-ervice does exist."
