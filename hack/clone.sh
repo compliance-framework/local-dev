@@ -6,7 +6,7 @@ for repo in "configuration-service" "assessment-runtime" "portal"; do
     echo "$repo exists"
   else
     echo "Cloning $repo"
-    git clone git@github.com:compliance-framework/configuration-service.git
+    git clone git@github.com:compliance-framework/$repo.git
   fi
 done
 
