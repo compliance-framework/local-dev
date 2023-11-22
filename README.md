@@ -20,7 +20,7 @@ Once the quickstart has been followed, there will be:
 # Quickstart
 
 1. Make sure you have a docker-compatible socket environment set up with a functioning CLI, in addition, docker-compose.
-1. Make sure azure client variables are set:
+1. Make sure azure client variables are set **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
 
 ```zsh
 export AZURE_CLIENT_ID="[REPLACEME]"

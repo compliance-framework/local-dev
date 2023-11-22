@@ -1,21 +1,21 @@
 #!/bin/bash
 set -e
 if [ -d "configuration-service" ]; then
-  echo "configuration-ervice does exist."
+  echo "configuration-service exists"
 else
-  echo "Clonning configuration-service"
+  echo "Cloning configuration-service"
   git clone git@github.com:compliance-framework/configuration-service.git
 fi
 if [ -d "assessment-runtime" ]; then
-  echo "assessment-runtime does exist."
+  echo "assessment-runtime exists"
 else
-  echo "Clonning assessment-runtime"
+  echo "Cloning assessment-runtime"
   git clone git@github.com:compliance-framework/assessment-runtime.git
 fi
 if [ -d "portal" ]; then
-  echo "portal does exist."
+  echo "portal exists"
 else
-  echo "Clonning portal"
+  echo "Cloning portal"
   git clone git@github.com:compliance-framework/portal.git
 fi
 
