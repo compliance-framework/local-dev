@@ -14,7 +14,7 @@ In a real world deployment of CF, teams would likely write their own version of 
 
 Once the quickstart has been followed, there will be:
 
-- A running instance of CF using docker-compose
+- A running instance of CF using docker-compose and scanning on an Azure subscription (this must be setup externally)
 - The correct repos checked out as subdirectories ready to develop on.
 
 # Quickstart
