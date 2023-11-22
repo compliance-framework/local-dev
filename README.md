@@ -2,7 +2,15 @@
 
 This project helps setting up infrastructure for both local development and (soon) cloud development on kubernetes.
 
-For now this is really a bunch of ugly bash scripts :) use cautiously.
+It could be considered an example deployment as opposed to actually part of the working code.
+
+There are three main components that it sets up:
+
+- Portal: this is the Frontend GUI.
+- Configuration Service: This acts as the API and is the "brain".
+- Assessment Runtime: This is what interacts with the cloud providers and gathers information in order to report back to configuration service.
+
+In a real world deployment of CF, teams would likely write their own version of this repo and deploy it to whatever infrastructure they preferred to work with as opposed to just using docker-compose.
 
 # Quickstart
 
