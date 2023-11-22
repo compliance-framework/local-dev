@@ -1,16 +1,21 @@
-# compliance-framework/infrastructure
+# Compliance-Framework Infrastructure Example
 
 This project helps setting up infrastructure for both local development and (soon) cloud development on kubernetes.
 
 It could be considered an example deployment as opposed to actually part of the working code.
 
-There are three main components that it sets up:
+There are three main components that it checks out and sets-up:
 
 - Portal: this is the Frontend GUI.
 - Configuration Service: This acts as the API and is the "brain".
 - Assessment Runtime: This is what interacts with the cloud providers and gathers information in order to report back to configuration service.
 
 In a real world deployment of CF, teams would likely write their own version of this repo and deploy it to whatever infrastructure they preferred to work with as opposed to just using docker-compose.
+
+Once the quickstart has been followed, there will be:
+
+- A running instance of CF using docker-compose
+- The correct repos checked out as subdirectories ready to develop on.
 
 # Quickstart
 
