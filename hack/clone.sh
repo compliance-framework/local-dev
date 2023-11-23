@@ -1,32 +1,35 @@
-#! /bin/bash
+#!/bin/bash
 set -e
-if [ -d "configuration-service" ]; then
- echo "configuration-ervice does exist."
-else 
- echo "Clonning configuration-service";
- git clone git@github.com:compliance-framework/configuration-service.git
-fi
-if [ -d "assessment-runtime" ]; then
- echo "assessment-runtime does exist."
-else
- echo "Clonning assessment-runtime"
- git clone git@github.com:compliance-framework/assessment-runtime.git
-fi
-if [ -d "portal" ]; then
- echo "portal does exist."
-else 
- echo "Clonning portal"
- git clone git@github.com:compliance-framework/portal.git
-fi
+
+for repo in "configuration-service" "assessment-runtime" "portal"; do
+  if [ -d "$repo" ]; then
+    echo "$repo exists"
+  else
+    echo "Cloning $repo"
+    git clone git@github.com:compliance-framework/$repo.git
+  fi
+done
 
 branch=$CONFIG_SERVICE_BRANCH
-if [ -z $branch ]; then branch="main"; fi
-cd configuration-service; git fetch; git checkout $branch; git pull origin $branch; cd -
+if [ -z "$branch" ]; then branch="main"; fi
+cd configuration-service
+git fetch
+git checkout "$branch"
+git pull origin "$branch"
+cd -
 
 branch=$ASSESSMENT_RUNTIME_BRANCH
-if [ -z $branch ]; then branch="main"; fi
-cd assessment-runtime; git fetch; git checkout $branch; git pull origin $branch; cd -
+if [ -z "$branch" ]; then branch="main"; fi
+cd assessment-runtime
+git fetch
+git checkout "$branch"
+git pull origin "$branch"
+cd -
 
 branch=$PORTAL_BRANCH
-if [ -z $branch ]; then branch="main"; fi
-cd portal; git fetch; git checkout $branch; git pull origin $branch; cd -
+if [ -z "$branch" ]; then branch="main"; fi
+cd portal
+git fetch
+git checkout "$branch"
+git pull origin "$branch"
+cd -
