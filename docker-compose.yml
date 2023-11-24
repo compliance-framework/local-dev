@@ -14,11 +14,7 @@ services:
     depends_on:
       - configuration-service
   configuration-service:
-    build:
-      context: ${PWD}/configuration-service
-      dockerfile: ${PWD}/configuration-service/Dockerfile
-    ports:
-      - "8080:8080"
+    image: ghcr.io/compliance-framework/configuration-service:latest
     depends_on:
       - mongodb
       - nats
@@ -32,9 +28,7 @@ services:
       - "27017:27017"
 
   plugin-registry:
-    build:
-      context: ${PWD}/assessment-runtime
-      dockerfile: test/registry/Dockerfile
+    image: ghcr.io/compliance-framework/plugin-registry:latest
     ports:
       - "3000:3000"
   nats:
@@ -44,9 +38,7 @@ services:
     ports:
       - "4222:4222"
   assessment-runtime:
-    build:
-      context: ${PWD}/assessment-runtime
-      dockerfile: ${PWD}/assessment-runtime/test/runtime/Dockerfile
+    image: ghcr.io/compliance-framework/assessment-runtime:latest
     depends_on:
       - plugin-registry
     secrets:
