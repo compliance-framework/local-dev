@@ -32,7 +32,7 @@ services:
   plugin-registry:
     image: ghcr.io/compliance-framework/plugin-registry:latest
     ports:
-      - "3000:3000"
+      - "3000:80"
   nats:
     image: nats:latest
     volumes:
