@@ -8,16 +8,11 @@ secrets:
     environment: "AZURE_TENANT_ID"
 services:
   portal:
-    build:
-      context: ${PWD}/portal
-      dockerfile: ${PWD}/portal/Dockerfile
+    image: ghcr.io/compliance-framework/portal:latest
     ports:
       - "8081:8081"
     depends_on:
       - configuration-service
-    environment:
-      - VITE_CONFIGURATION_SERVICE_URL="http://infrastructure-configuration-service-1:8080/api"
-      #- VITE_CONFIGURATION_SERVICE_URL="http://localhost:8080/api"
   configuration-service:
     build:
       context: ${PWD}/configuration-service

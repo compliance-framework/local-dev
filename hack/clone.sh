@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-for repo in "configuration-service" "assessment-runtime" "portal"; do
+for repo in "configuration-service" "assessment-runtime"; do
   if [ -d "$repo" ]; then
     echo "$repo exists"
   else
@@ -21,14 +21,6 @@ cd -
 branch=$ASSESSMENT_RUNTIME_BRANCH
 if [ -z "$branch" ]; then branch="main"; fi
 cd assessment-runtime
-git fetch
-git checkout "$branch"
-git pull origin "$branch"
-cd -
-
-branch=$PORTAL_BRANCH
-if [ -z "$branch" ]; then branch="main"; fi
-cd portal
 git fetch
 git checkout "$branch"
 git pull origin "$branch"
