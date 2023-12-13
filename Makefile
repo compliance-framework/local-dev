@@ -14,9 +14,9 @@ help: ## Display this help.
 
 setup:  ## Set up a default scenario for CF
 	@bash hack/setup.sh
-clone:  ## Clone the needed repos
-	@bash hack/clone.sh
-up: clone    ## Bring up the services
-	docker compose up --build -d
+pull:  ## Pull the latest images
+	docker compose pull
+up: pull   ## Bring up the services
+	docker compose up -d
 stop:        ## Stop the services
 	docker compose down
