@@ -12,3 +12,5 @@ portal
 *.so
 *.dylib
 bin/**
+
+sourceme
