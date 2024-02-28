@@ -13,6 +13,6 @@ task_id="$(curl -v localhost:8080/api/plan/"${plan_id}"/tasks --header 'Content-
 echo "Task ID: ${task_id}"
 
 echo "Creating Plan: for subscription id: $AZURE_SUBSCRIPTION_ID"
-activity_id="$(curl -v localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"CheckVMsforport80", "description":"Thisactivitychecksfortheport", "provider":{"name":"azurecli", "package":"azurecli", "params":{"parameter1":"this-is-the-parameter-value"}, "configuration":{"subscriptionId":"d84e5f2b-e68c-462a-9ac9-856b0103555f"}, "version":"1.0.0"}, "subjects":{"title":"VMsunderFinancesubscription", "description":"Notallofthemachines", "labels":{"subscription":"finance", "env":"prod"}}}' | jq -r .id)"
+activity_id="$(curl -v localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"CheckVMsforport80", "description":"Thisactivitychecksfortheport", "provider":{"name":"azurecli", "package":"azurecli", "params":{"parameter1":"this-is-the-parameter-value"}, "configuration":{"subscriptionId":"'${AZURE_SUBSCRIPTION_ID}'"}, "version":"1.0.0"}, "subjects":{"title":"VMsunderFinancesubscription", "description":"Notallofthemachines", "labels":{"subscription":"finance", "env":"prod"}}}' | jq -r .id)"
 echo "Activity ID: ${activity_id}"
 curl "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
