@@ -15,4 +15,5 @@ echo "Task ID: ${task_id}"
 echo "Creating Plan: for subscription id: $AZURE_SUBSCRIPTION_ID"
 activity_id="$(curl -v localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"CheckVMsforport80", "description":"Thisactivitychecksfortheport", "provider":{"name":"azurecli", "package":"azurecli", "params":{"parameter1":"this-is-the-parameter-value"}, "configuration":{"subscriptionId":"'${AZURE_SUBSCRIPTION_ID}'"}, "version":"1.0.0"}, "subjects":{"title":"VMsunderFinancesubscription", "description":"Notallofthemachines", "labels":{"subscription":"finance", "env":"prod"}}}' | jq -r .id)"
 echo "Activity ID: ${activity_id}"
+
 curl "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
