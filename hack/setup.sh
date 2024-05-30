@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 set -euo pipefail
 
 echo "Running CF setup for AZURE_SUBSCRIPTION_ID: $AZURE_SUBSCRIPTION_ID"
@@ -17,3 +17,7 @@ activity_id="$(curl -v localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/a
 echo "Activity ID: ${activity_id}"
 
 curl "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
+
+echo "SLEEPING FOR 5 SECONDS"
+sleep 5
+
