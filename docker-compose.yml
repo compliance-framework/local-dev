@@ -16,7 +16,7 @@ services:
     environment:
       - VITE_CONFIGURATION_SERVICE_URL=http://localhost:8080/api
   configuration-service:
-    image: ghcr.io/compliance-framework/configuration-service:latest
+    image: ghcr.io/compliance-framework/configuration-service:${CS_TAG}
     ports:
       - "8080:8080"
     depends_on:
@@ -25,12 +25,10 @@ services:
     environment:
       - NATS_URI=nats://nats:4222
       - MONGO_URI=mongodb://mongodb:27017
-
   mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
-
   plugin-registry:
     image: ghcr.io/compliance-framework/plugin-registry:latest
     ports:
@@ -42,7 +40,7 @@ services:
     ports:
       - "4222:4222"
   assessment-runtime:
-    image: ghcr.io/compliance-framework/assessment-runtime:latest
+    image: ghcr.io/compliance-framework/assessment-runtime:${AR_TAG}
     depends_on:
       - plugin-registry
     secrets:
