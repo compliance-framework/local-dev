@@ -22,7 +22,3 @@ activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/a
 echo "Activity ID: ${activity_id}"
 
 curl "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
-
-echo "SLEEPING FOR 5 SECONDS"
-sleep 5
-
