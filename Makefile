@@ -15,11 +15,13 @@ CS_TAG ?= latest
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-setup:  ## Set up a default scenario for CF
-	@bash hack/setup.sh
-pull:  ## Pull the latest images
-	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose pull
-up: pull   ## Bring up the services
+setup: up  ## Set up a default scenario for CF
+	bash hack/setup.sh
+up: sourceme pull   ## Bring up the services
 	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose up -d
-stop:        ## Stop the services
+pull:      ## Pull the latest images
+	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose pull
+stop:      ## Stop the services
 	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose down
+sourceme:
+	source sourceme
