@@ -20,6 +20,6 @@ setup:  ## Set up a default scenario for CF
 pull:  ## Pull the latest images
 	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose pull
 up: pull   ## Bring up the services
-	docker compose up -d
+	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose up -d
 stop:        ## Stop the services
-	docker compose down
+	AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose down
