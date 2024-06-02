@@ -1,7 +1,3 @@
-# files that we clone locally
-configuration-service
-assessment-runtime
-portal
 # Mac OS X files
 .DS_Store
 
