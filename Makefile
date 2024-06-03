@@ -24,7 +24,7 @@ restart: down setup
 setup: up  ## Set up a default scenario for CF
 	bash hack/setup.sh
 
-up: pull   ## Bring up the services
+up:    ## Bring up the services
 	AZURE_SUBSCRIPTION_ID=$(AZURE_SUBSCRIPTION_ID) AZURE_TENANT_ID=$(AZURE_TENANT_ID) AZURE_CLIENT_ID=$(AZURE_CLIENT_ID) AZURE_CLIENT_SECRET=$(AZURE_CLIENT_SECRET) AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) docker compose up -d
 
 pull:      ## Pull the latest images
