@@ -5,7 +5,7 @@ set -euo pipefail
 src_folder="$(pwd)/${0%/*}"
 cd $src_folder
 
-source ../sourceme
+source ../.env
 
 echo "Running CF setup for AZURE_SUBSCRIPTION_ID: $AZURE_SUBSCRIPTION_ID"
 

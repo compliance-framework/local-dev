@@ -12,10 +12,10 @@
 AR_TAG ?= latest
 CS_TAG ?= latest
 
-AZURE_SUBSCRIPTION_ID := $(shell . ./sourceme; echo $$AZURE_SUBSCRIPTION_ID)
-AZURE_CLIENT_ID       := $(shell . ./sourceme; echo $$AZURE_CLIENT_ID)
-AZURE_TENANT_ID       := $(shell . ./sourceme; echo $${AZURE_TENANT_ID})
-AZURE_CLIENT_SECRET   := $(shell . ./sourceme; echo $$AZURE_CLIENT_SECRET)
+AZURE_SUBSCRIPTION_ID := $(shell . ./.env; echo $$AZURE_SUBSCRIPTION_ID)
+AZURE_CLIENT_ID       := $(shell . ./.env; echo $$AZURE_CLIENT_ID)
+AZURE_TENANT_ID       := $(shell . ./.env; echo $${AZURE_TENANT_ID})
+AZURE_CLIENT_SECRET   := $(shell . ./.env; echo $$AZURE_CLIENT_SECRET)
 
 
 help: ## Display this help.

@@ -9,6 +9,6 @@
 *.dylib
 bin/**
 
-sourceme
+.env*
 
 DEMO.md
