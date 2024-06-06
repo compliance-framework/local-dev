@@ -11,6 +11,7 @@
 
 AR_TAG ?= latest
 CS_TAG ?= latest
+PR_TAG ?= latest
 
 AZURE_SUBSCRIPTION_ID := $(shell . ./.env; echo $$AZURE_SUBSCRIPTION_ID)
 AZURE_CLIENT_ID       := $(shell . ./.env; echo $$AZURE_CLIENT_ID)

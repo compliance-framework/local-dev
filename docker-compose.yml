@@ -30,7 +30,7 @@ services:
     ports:
       - "27017:27017"
   plugin-registry:
-    image: ghcr.io/compliance-framework/plugin-registry:latest
+    image: ghcr.io/compliance-framework/plugin-registry:${PR_TAG}
     ports:
       - "3001:80"
   nats:
