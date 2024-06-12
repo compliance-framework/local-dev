@@ -7,14 +7,6 @@ secrets:
   tenantId:
     environment: "AZURE_TENANT_ID"
 services:
-  portal:
-    image: ghcr.io/compliance-framework/portal:latest
-    ports:
-      - "8081:8081"
-    depends_on:
-      - configuration-service
-    environment:
-      - VITE_CONFIGURATION_SERVICE_URL=http://localhost:8080/api
   configuration-service:
     image: ghcr.io/compliance-framework/configuration-service:${CS_TAG}
     ports:
