@@ -31,4 +31,4 @@ export AZURE_TENANT_ID="[REPLACEME]"
 See DEMO.md for how to get these details.
 
 2. `make up` to checkout/update repos, build all the containers and spin them up
-3. `make setup` should populate the data
+3. `make help` should give you commands to run to set up various scenarios
