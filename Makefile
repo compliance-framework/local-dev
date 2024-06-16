@@ -31,7 +31,7 @@ ssh-setup: up  ## Set up a default scenario for CF
 	@bash hack/ssh_setup.sh
 
 up:    ## Bring up the services
-	@AZURE_SUBSCRIPTION_ID=$(AZURE_SUBSCRIPTION_ID) AZURE_TENANT_ID=$(AZURE_TENANT_ID) AZURE_CLIENT_ID=$(AZURE_CLIENT_ID) AZURE_CLIENT_SECRET=$(AZURE_CLIENT_SECRET) AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) PR_TAG=$(PR_TAG) docker compose up -d
+	@AZURE_SUBSCRIPTION_ID=$(AZURE_SUBSCRIPTION_ID) AZURE_TENANT_ID=$(AZURE_TENANT_ID) AZURE_CLIENT_ID=$(AZURE_CLIENT_ID) AZURE_CLIENT_SECRET=$(AZURE_CLIENT_SECRET) AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) PR_TAG=$(PR_TAG) docker compose up -d --remove-orphans
 
 pull:      ## Pull the latest images
 	@AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) PR_TAG=$(PR_TAG) docker compose pull
