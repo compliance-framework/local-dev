@@ -7,6 +7,7 @@ cd $src_folder
 
 source ../.env
 
+echo "____________________________________________________________"
 echo "Running CF setup for AZURE_SUBSCRIPTION_ID: $AZURE_SUBSCRIPTION_ID"
 
 echo "Creating Plan: Sample Assessment Plan"

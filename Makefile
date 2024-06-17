@@ -22,7 +22,7 @@ AZURE_CLIENT_SECRET   := $(shell . ./.env; echo $$AZURE_CLIENT_SECRET)
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-restart: down prune setup    ## Tear down environment and setup new one
+restart: down prune azure-vm-tag-setup ssh-setup    ## Tear down environment and setup new one
 
 azure-vm-tag-setup: up  ## Set up a default scenario for CF
 	@bash hack/azure_vm_tag_setup.sh
