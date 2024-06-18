@@ -41,3 +41,9 @@ down:      ## Stop the services
 
 prune:
 	@docker system prune -f
+
+terraform-setup:  # Set up the vms for the demo
+	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=2' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=2'
+
+terraform-destroy:   # Destroy the vms for the demo
+	cd terraform && terraform destroy -auto-approve -var='vm_repeats=1' -var='vm_count=2'
