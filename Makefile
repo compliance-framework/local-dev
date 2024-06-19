@@ -42,8 +42,8 @@ down:      ## Stop the services
 prune:
 	@docker system prune -f
 
-terraform-setup:  # Set up the vms for the demo
-	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=2' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=2'
+terraform-setup:  ## Set up the vms for the demo
+	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=5' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=5'
 
-terraform-destroy:   # Destroy the vms for the demo
-	cd terraform && terraform destroy -auto-approve -var='vm_repeats=1' -var='vm_count=2'
+terraform-destroy:   ## Destroy the vms for the demo
+	cd terraform && terraform destroy -target azurerm_subnet.compliance_framework_demo_subnet -target azurerm_virtual_network.compliance_framework_demo_virtual_network -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[0]' -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[1]' -target 'module.vm["0"].azurerm_virtual_machine.compliance_framework_demo_virtual_machine[1]' -target 'module.vm["0"].random_id.compliance_framework_demo_random_id' -auto-approve -var='vm_repeats=1' -var='vm_count=5'

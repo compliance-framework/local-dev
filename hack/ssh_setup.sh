@@ -26,7 +26,7 @@ echo "Task ID: ${task_id}"
 
 echo "Creating Plan: Create Activity"
 response="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"Check server is OK", "description":"This activity checks the server is OK", "provider":{"name":"ssh-command", "package":"ssh-command", "params":{}, "configuration":{"username":"'${CF_SSH_USERNAME}'","password":"'${CF_SSH_PASSWORD}'","host":"'${CF_SSH_HOST}'","command":"'"$CF_SSH_COMMAND"'","port":"'${CF_SSH_PORT:-2227}'"}, "version":"1.0.0"}, "subjects":{"title":"Server", "description":"Server: '${CF_SSH_HOST}'", "labels":{}}}')"
-activity_id="$(echo $response | jq -r '.')"
+activity_id="$(echo $response | jq -r '.id')"
 echo "Activity ID: ${activity_id}"
 
 curl "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
