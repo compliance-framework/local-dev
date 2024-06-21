@@ -1,4 +1,3 @@
-version: "3.8"
 secrets:
   clientId:
     environment: "AZURE_CLIENT_ID"
