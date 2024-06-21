@@ -22,12 +22,12 @@ AZURE_CLIENT_SECRET   := $(shell . ./.env; echo $$AZURE_CLIENT_SECRET)
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-restart: down prune azure-vm-tag-setup ssh-setup    ## Tear down environment and setup new one
+restart: down prune up azure-vm-tag-setup ssh-setup    ## Tear down environment and setup new one
 
-azure-vm-tag-setup: up  ## Set up a default scenario for CF
+azure-vm-tag-setup:  ## Set up a default scenario for CF
 	@bash hack/azure_vm_tag_setup.sh
 
-ssh-setup: up  ## Set up a default scenario for CF
+ssh-setup:  ## Set up a default scenario for CF
 	@bash hack/ssh_setup.sh
 
 up:    ## Bring up the services
@@ -40,7 +40,7 @@ down:      ## Stop the services
 	@AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) PR_TAG=$(PR_TAG) docker compose down
 
 prune:
-	@docker system prune -f
+	@docker system prune -f --volumes
 
 terraform-setup:  ## Set up the vms for the demo
 	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=5' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=5'
