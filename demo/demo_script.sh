@@ -115,6 +115,11 @@ setup_colors
 cd $SCRIPT_DIR/..
 
 
+function reset_state {
+	picked_graph_desc='All observations vs findings'
+	picked_plan=any
+}
+reset_state
 while true
 do
 	set +e
@@ -124,16 +129,22 @@ do
 		Input a task:
 
 		ga) Graph all observations vs findings
-		gao) Get all observations
-		gps) Get all problematic subjects (findings)
+		gao) Get all observations (summary)
+		gps) Get all findings
+		pp) pick plan
 		jm) Jump onto mongo
 		lar) Assessment runtime logs
 		lcs) Configuration service logs
 		ln) NATS logs
-		pids) Get plan ids
-		v) toggle verbose
+		plans) Get plans
 
+		r) reset state
+		v) toggle verbose
 		q) quit
+		_____________________________________________________________________
+		State:
+
+		- Picked plan: ${picked_plan}
 
 	EOF
 
@@ -141,13 +152,20 @@ do
 
 	if [[ $ans == ga ]]
 	then
-		while true; do echo ___________________________________________________________________________________; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/any/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c 'All observations vs findings' | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
+		while true; do echo ___________________________________________________________________________________; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/${picked_plan}/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${picked_graph_desc}" | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
 	elif [[ $ans == gao ]]
 	then
-		curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
+		curl -s http://localhost:8080/api/plan/${picked_plan}/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
 	elif [[ $ans == gps ]]
 	then
-	 	curl -s http://localhost:8080/api/plan/any/results/any/findings | jq -r '.[] | .description'
+	 	curl -s http://localhost:8080/api/plan/${picked_plan}/results/any/findings | jq -r '.[]'
+	elif [[ $ans == pp ]]
+	then
+		#curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
+		curl -s http://localhost:8080/api/plans | jq '.'
+		echo input plan id
+		read picked_plan
+		read picked_graph_desc
 	elif [[ $ans == jm ]]
 	then
 		docker exec -ti local-dev-mongodb-1 mongosh
@@ -160,12 +178,17 @@ do
 	elif [[ $ans == nl ]]
 	then
 		docker logs local-dev-nats-1 -f
-	elif [[ $ans == pids ]]
+	elif [[ $ans == plans ]]
 	then
-		curl -s http://localhost:8080/api/plans
+		curl -s http://localhost:8080/api/plans | jq '.'
 	elif [[ $ans == q ]]
 	then
 		exit 0
+	elif [[ $ans == r ]]
+	then
+		reset_state
+		set +x
+		set +v
 	elif [[ $ans == v ]]
 	then
 		set -x
