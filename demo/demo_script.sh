@@ -9,9 +9,10 @@ set -o errexit -o nounset -o errtrace -o pipefail
 # Trap signals/exits
 cleanup() {
   EXIT_CODE=$?  # This must be the first line of the cleanup
-  trap - SIGINT SIGTERM ERR EXIT
+  #trap - SIGINT SIGTERM ERR EXIT
   # Script cleanup here. Make sure cleanup is idempotent, as it could be called multiple time.
   # If you want more fine-grained cleanup, separate the traps and the functions.
+  run
 }
 trap cleanup SIGINT SIGTERM ERR EXIT
 
@@ -107,21 +108,26 @@ setup_colors
 
 # Script logic here, or `source this_script.sh` in your script if you want to treat it as a library.
 
-#msg "${RED}Reading parameters:${NOFORMAT}"
-#msg "- flag: ${FLAG}"
-#msg "- param: ${PARAM}"
-#msg "- arguments: ${ARGS[*]-}"
-
+# Move to root folder
 cd $SCRIPT_DIR/..
 
-
 function reset_state {
-	picked_graph_desc='All observations vs findings'
-	picked_plan=any
+	PICKED_GRAPH_DESC='All observations vs findings'
+	PICKED_PLAN=any
+	AR_TAG=latest
+	CS_TAG=latest
 }
-reset_state
-while true
-do
+
+function show_state {
+		set -o | grep xtrace
+		set -o | grep verbose
+		echo "CS_TAG=$CS_TAG"
+		echo "AR_TAG=$AR_TAG"
+		echo "PICKED_PLAN=$PICKED_PLAN"
+		echo "PICKED_GRAPH_DESC=$PICKED_GRAPH_DESC"
+}
+
+function run {
 	set +e
 	cat <<- EOF
 
@@ -132,19 +138,22 @@ do
 		gao) Get all observations (summary)
 		gps) Get all findings
 		pp) pick plan
+		ps) pick tags
 		jm) Jump onto mongo
 		lar) Assessment runtime logs
 		lcs) Configuration service logs
 		ln) NATS logs
+		mr) restart system
 		plans) Get plans
 
 		r) reset state
+		show) show state
 		v) toggle verbose
 		q) quit
 		_____________________________________________________________________
 		State:
 
-		- Picked plan: ${picked_plan}
+		$(show_state)
 
 	EOF
 
@@ -152,20 +161,35 @@ do
 
 	if [[ $ans == ga ]]
 	then
-		while true; do echo ___________________________________________________________________________________; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/${picked_plan}/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${picked_graph_desc}" | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
+		while true; do echo ___________________________________________________________________________________; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}" | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
 	elif [[ $ans == gao ]]
 	then
-		curl -s http://localhost:8080/api/plan/${picked_plan}/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
+		curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | $PAGER
 	elif [[ $ans == gps ]]
 	then
-	 	curl -s http://localhost:8080/api/plan/${picked_plan}/results/any/findings | jq -r '.[]'
+	 	curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/findings | jq -r '.[]' | $PAGER
 	elif [[ $ans == pp ]]
 	then
 		#curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
 		curl -s http://localhost:8080/api/plans | jq '.'
 		echo input plan id
-		read picked_plan
-		read picked_graph_desc
+		read PICKED_PLAN
+		read PICKED_GRAPH_DESC
+	elif [[ $ans == pt ]]
+	then
+		show_state
+		echo "New docker AR_TAG (assessment runtime) value (just hit return to keep current)?"
+		read new_ar_tag
+		if [[ $new_ar_tag != '' ]]
+		then
+			AR_TAG=$new_ar_tag
+		fi
+		echo "New docker CS_TAG (configuration server) value (just hit return to keep current)?"
+		read new_cs_tag
+		if [[ $new_cs_tag != '' ]]
+		then
+			CS_TAG=$new_cs_tag
+		fi
 	elif [[ $ans == jm ]]
 	then
 		docker exec -ti local-dev-mongodb-1 mongosh
@@ -178,6 +202,9 @@ do
 	elif [[ $ans == nl ]]
 	then
 		docker logs local-dev-nats-1 -f
+	elif [[ $ans == mr ]]
+	then
+		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} make restart
 	elif [[ $ans == plans ]]
 	then
 		curl -s http://localhost:8080/api/plans | jq '.'
@@ -189,9 +216,19 @@ do
 		reset_state
 		set +x
 		set +v
+	elif [[ $ans == show ]]
+	then
+		show_state
 	elif [[ $ans == v ]]
 	then
 		set -x
 		set -v
 	fi
+}
+
+
+reset_state
+while true
+do
+	run
 done
