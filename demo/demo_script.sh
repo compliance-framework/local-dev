@@ -9,12 +9,14 @@ set -o errexit -o nounset -o errtrace -o pipefail
 # Trap signals/exits
 cleanup() {
   EXIT_CODE=$?  # This must be the first line of the cleanup
-  #trap - SIGINT SIGTERM ERR EXIT
-  # Script cleanup here. Make sure cleanup is idempotent, as it could be called multiple time.
+  # Script cleanup here. Make sure cleanup is idempotent, as it could be called multiple times.
   # If you want more fine-grained cleanup, separate the traps and the functions.
   run
 }
 trap cleanup SIGINT SIGTERM ERR EXIT
+clear_traps() {
+  trap - SIGINT SIGTERM ERR EXIT
+}
 
 # Determine the directory this script is running in.
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
@@ -111,14 +113,14 @@ setup_colors
 # Move to root folder
 cd $SCRIPT_DIR/..
 
-function reset_state {
+reset_state() {
 	PICKED_GRAPH_DESC='All observations vs findings'
 	PICKED_PLAN=any
 	AR_TAG=latest
 	CS_TAG=latest
 }
 
-function show_state {
+show_state() {
 		set -o | grep xtrace
 		set -o | grep verbose
 		echo "CS_TAG=$CS_TAG"
@@ -127,10 +129,9 @@ function show_state {
 		echo "PICKED_GRAPH_DESC=$PICKED_GRAPH_DESC"
 }
 
-function run {
+run() {
 	set +e
 	cat <<- EOF
-
 		_____________________________________________________________________
 		Input a task:
 
@@ -172,8 +173,9 @@ function run {
 	then
 		#curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
 		curl -s http://localhost:8080/api/plans | jq '.'
-		echo input plan id
+		echo -n "Input plan id: "
 		read PICKED_PLAN
+		echo -n "Input description for graph: "
 		read PICKED_GRAPH_DESC
 	elif [[ $ans == pt ]]
 	then
@@ -210,6 +212,7 @@ function run {
 		curl -s http://localhost:8080/api/plans | jq '.'
 	elif [[ $ans == q ]]
 	then
+		clear_traps
 		exit 0
 	elif [[ $ans == r ]]
 	then
