@@ -112,6 +112,7 @@ setup_colors
 
 # Move to root folder
 cd $SCRIPT_DIR/..
+LINE=_____________________________________________________________________
 
 reset_state() {
 	PICKED_GRAPH_DESC='All observations vs findings'
@@ -129,17 +130,25 @@ show_state() {
 		echo "PICKED_GRAPH_DESC=$PICKED_GRAPH_DESC"
 }
 
+wait_for_return() {
+	echo ${LINE}
+	echo "Return to continue"
+	read
+}
+
+
 run() {
 	set +e
 	cat <<- EOF
-		_____________________________________________________________________
-		Input a task:
+		${LINE}
+		Options:
 
 		ga) Graph all observations vs findings
 		gao) Get all observations (summary)
 		gps) Get all findings
+		grc) Get running containers
 		pp) pick plan
-		ps) pick tags
+		pt) pick tags
 		jm) Jump onto mongo
 		lar) Assessment runtime logs
 		lcs) Configuration service logs
@@ -151,24 +160,28 @@ run() {
 		show) show state
 		v) toggle verbose
 		q) quit
-		_____________________________________________________________________
-		State:
-
+		${LINE}
+		Current State:
 		$(show_state)
-
+		${LINE}
+		Input choice:
 	EOF
 
 	read ans
 
 	if [[ $ans == ga ]]
 	then
-		while true; do echo ___________________________________________________________________________________; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}" | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
+		while true; do echo ${LINE}; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}" | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
 	elif [[ $ans == gao ]]
 	then
 		curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | $PAGER
 	elif [[ $ans == gps ]]
 	then
 	 	curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/findings | jq -r '.[]' | $PAGER
+	elif [[ $ans == grc ]]
+	then
+	 	docker ps
+		wait_for_return
 	elif [[ $ans == pp ]]
 	then
 		#curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
@@ -180,13 +193,17 @@ run() {
 	elif [[ $ans == pt ]]
 	then
 		show_state
-		echo "New docker AR_TAG (assessment runtime) value (just hit return to keep current)?"
+		echo ${LINE}
+		echo "Input new docker AR_TAG (assessment runtime) value."
+		echo -n "(hit return to keep current value; latest_local may be what you want): "
 		read new_ar_tag
 		if [[ $new_ar_tag != '' ]]
 		then
 			AR_TAG=$new_ar_tag
 		fi
-		echo "New docker CS_TAG (configuration server) value (just hit return to keep current)?"
+		echo ${LINE}
+		echo "New docker CS_TAG (configuration server) value."
+		echo -n "(hit return to keep current value; latest_local may be what you want): "
 		read new_cs_tag
 		if [[ $new_cs_tag != '' ]]
 		then
@@ -197,13 +214,13 @@ run() {
 		docker exec -ti local-dev-mongodb-1 mongosh
 	elif [[ $ans == lar ]]
 	then
-		docker logs local-dev-assessment-runtime-1 -f
+		docker logs local-dev-assessment-runtime-1 | $PAGER
 	elif [[ $ans == lcs ]]
 	then
-		docker logs local-dev-configuration-service-1 -f
-	elif [[ $ans == nl ]]
+		docker logs local-dev-configuration-service-1 | $PAGER
+	elif [[ $ans == ln ]]
 	then
-		docker logs local-dev-nats-1 -f
+		docker logs local-dev-nats-1 | $PAGER
 	elif [[ $ans == mr ]]
 	then
 		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} make restart
@@ -226,6 +243,9 @@ run() {
 	then
 		set -x
 		set -v
+	else
+		echo Unrecognised: $ans
+		wait_for_return
 	fi
 }
 
