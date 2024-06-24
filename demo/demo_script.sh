@@ -111,7 +111,7 @@ setup_colors
 # Script logic here, or `source this_script.sh` in your script if you want to treat it as a library.
 
 # Move to root folder
-cd $SCRIPT_DIR/..
+cd "$SCRIPT_DIR/.."
 LINE=_____________________________________________________________________
 
 reset_state() {
@@ -119,65 +119,77 @@ reset_state() {
 	PICKED_PLAN=any
 	AR_TAG=latest
 	CS_TAG=latest
+	SLEEP_TIME=15
+	GRAPH_MINUTES=360
 }
 
 show_state() {
-		set -o | grep xtrace
-		set -o | grep verbose
-		echo "CS_TAG=$CS_TAG"
-		echo "AR_TAG=$AR_TAG"
-		echo "PICKED_PLAN=$PICKED_PLAN"
-		echo "PICKED_GRAPH_DESC=$PICKED_GRAPH_DESC"
+	set -o | grep xtrace
+	set -o | grep verbose
+	echo "CS_TAG=$CS_TAG   AR_TAG=$AR_TAG   PICKED_PLAN=$PICKED_PLAN   PICKED_GRAPH_DESC=$PICKED_GRAPH_DESC"
 }
 
 wait_for_return() {
 	echo ${LINE}
 	echo "Return to continue"
-	read
+	read -r
 }
 
 
 run() {
 	set +e
 	cat <<- EOF
+
 		${LINE}
 		Options:
 
-		ga) Graph all observations vs findings
-		gao) Get all observations (summary)
-		gps) Get all findings
-		grc) Get running containers
-		pp) pick plan
-		pt) pick tags
-		jm) Jump onto mongo
-		lar) Assessment runtime logs
-		lcs) Configuration service logs
-		ln) NATS logs
-		mr) restart system
-		plans) Get plans
+		ga)         Graph observations vs findings
+		gao)        Get all observations (summary)
+		gps)        Get all findings
+		grc)        Get running containers
 
-		r) reset state
-		show) show state
-		v) toggle verbose
-		q) quit
+		plans)      Get plans
+		pp)         Pick plan
+		pt)         Pick tags
+
+		jm)         Jump onto mongo
+
+		lar)        Assessment runtime logs
+		lcs)        Configuration service logs
+		ln)         NATS logs
+		lm)         Mongodb logs
+
+		mr)         Restart and reset demo
+
+		r)          reset state
+		v)          toggle verbose
+		q)          quit
 		${LINE}
 		Current State:
 		$(show_state)
 		${LINE}
-		Input choice:
 	EOF
 
-	read ans
+	echo -n "Input choice: "
+	read -r ans
 
 	if [[ $ans == ga ]]
 	then
-		while true; do echo ${LINE}; date; mkdir -p ~/cf_demo_logs; d=$(date +%s); curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' > ~/cf_demo_logs/$d.output; tail -30 ~/cf_demo_logs/$d.output | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min","Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}" | tee ~/cf_demo_logs/$d.asciigraph; sleep 15; done
+		while true
+		do
+			echo ${LINE}
+			date
+			mkdir -p ~/cf_demo_logs
+			curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' | tail -"${GRAPH_MINUTES}" | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min,Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}"
+			echo Waiting $SLEEP_TIME seconds, ^C to return to menu
+			sleep $SLEEP_TIME
+		done
 	elif [[ $ans == gao ]]
 	then
-		curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | $PAGER
+		curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | "$PAGER"
 	elif [[ $ans == gps ]]
 	then
-	 	curl -s http://localhost:8080/api/plan/${PICKED_PLAN}/results/any/findings | jq -r '.[]' | $PAGER
+	 	curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/findings | jq -r '.[]' | "$PAGER"
 	elif [[ $ans == grc ]]
 	then
 	 	docker ps
@@ -187,16 +199,16 @@ run() {
 		#curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
 		curl -s http://localhost:8080/api/plans | jq '.'
 		echo -n "Input plan id: "
-		read PICKED_PLAN
+		read -r PICKED_PLAN
 		echo -n "Input description for graph: "
-		read PICKED_GRAPH_DESC
+		read -r PICKED_GRAPH_DESC
 	elif [[ $ans == pt ]]
 	then
 		show_state
 		echo ${LINE}
 		echo "Input new docker AR_TAG (assessment runtime) value."
 		echo -n "(hit return to keep current value; latest_local may be what you want): "
-		read new_ar_tag
+		read -r new_ar_tag
 		if [[ $new_ar_tag != '' ]]
 		then
 			AR_TAG=$new_ar_tag
@@ -204,7 +216,7 @@ run() {
 		echo ${LINE}
 		echo "New docker CS_TAG (configuration server) value."
 		echo -n "(hit return to keep current value; latest_local may be what you want): "
-		read new_cs_tag
+		read -r new_cs_tag
 		if [[ $new_cs_tag != '' ]]
 		then
 			CS_TAG=$new_cs_tag
@@ -212,6 +224,9 @@ run() {
 	elif [[ $ans == jm ]]
 	then
 		docker exec -ti local-dev-mongodb-1 mongosh
+	elif [[ $ans == lm ]]
+	then
+		docker logs local-dev-mongodb-1 | $PAGER
 	elif [[ $ans == lar ]]
 	then
 		docker logs local-dev-assessment-runtime-1 | $PAGER
@@ -244,7 +259,7 @@ run() {
 		set -x
 		set -v
 	else
-		echo Unrecognised: $ans
+		echo "Unrecognised: $ans"
 		wait_for_return
 	fi
 }
