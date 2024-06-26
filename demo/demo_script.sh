@@ -119,7 +119,6 @@ reset_state() {
 	PICKED_PLAN=any
 	AR_TAG=latest
 	CS_TAG=latest
-	SLEEP_TIME=15
 	GRAPH_MINUTES=360
 }
 
@@ -131,7 +130,7 @@ show_state() {
 
 wait_for_return() {
 	echo ${LINE}
-	echo "Return to continue"
+	echo "Done, return to continue"
 	read -r
 }
 
@@ -170,21 +169,17 @@ ${LINE}
 "
 
 	echo -ne "${INVERSE}Input choice ==>${RESET_INVERSE} "
-	ans=
+	unset ans
 	read -r ans
 
 	clear
 	if [[ $ans == ga ]]
 	then
-		while true
-		do
-			date
-			echo ${LINE}
-			mkdir -p ~/cf_demo_logs
-			curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' | tail -"${GRAPH_MINUTES}" | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min,Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}"
-			echo Waiting $SLEEP_TIME seconds, ^C to return to menu
-			sleep $SLEEP_TIME
-		done
+		date
+		echo ${LINE}
+		mkdir -p ~/cf_demo_logs
+		curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' | tail -"${GRAPH_MINUTES}" | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min,Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}"
+		wait_for_return
 	elif [[ $ans == gao ]]
 	then
 		curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | "$PAGER"
@@ -239,6 +234,7 @@ ${LINE}
 	elif [[ $ans == mr ]]
 	then
 		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} make restart
+		wait_for_return
 	elif [[ $ans == plans ]]
 	then
 		curl -s http://localhost:8080/api/plans | jq '.'
