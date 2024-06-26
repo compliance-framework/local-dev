@@ -58,7 +58,7 @@ EOF
 
 setup_colors() {
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
+    NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m' BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m' INVERSE='\033[7m' RESET_INVERSE='\033[27m'
   else
     NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
   fi
@@ -126,7 +126,7 @@ reset_state() {
 show_state() {
 	set -o | grep xtrace
 	set -o | grep verbose
-	echo "CS_TAG=$CS_TAG   AR_TAG=$AR_TAG   PICKED_PLAN=$PICKED_PLAN   PICKED_GRAPH_DESC=$PICKED_GRAPH_DESC"
+	echo "CS_TAG='$CS_TAG'    AR_TAG='$AR_TAG'    PICKED_PLAN='$PICKED_PLAN'    PICKED_GRAPH_DESC='$PICKED_GRAPH_DESC'"
 }
 
 wait_for_return() {
@@ -137,48 +137,49 @@ wait_for_return() {
 
 
 run() {
+	clear
 	set +e
-	cat <<- EOF
+	echo -e "
+${LINE}${RED}
+${INVERSE}Options${RESET_INVERSE}
+ga)         Graph observations vs findings
+gao)        Get all observations (summary)
+gaf)        Get all findings
+grc)        Get running containers
 
-		${LINE}
-		Options:
+plans)      Get plans
+pp)         Pick a plan to focus on
+pt)         Pick docker container tags
 
-		ga)         Graph observations vs findings
-		gao)        Get all observations (summary)
-		gps)        Get all findings
-		grc)        Get running containers
+jm)         Jump onto mongo
 
-		plans)      Get plans
-		pp)         Pick plan
-		pt)         Pick tags
+lar)        Assessment runtime logs
+lcs)        Configuration service logs
+ln)         NATS logs
+lm)         Mongodb logs
 
-		jm)         Jump onto mongo
+mr)         Restart and reset demo (kills containers and data)
 
-		lar)        Assessment runtime logs
-		lcs)        Configuration service logs
-		ln)         NATS logs
-		lm)         Mongodb logs
+r)          Reset state of demo script (does not kill containers)
+v)          Toggle verbose flag
+q)          Quit
+${NOFORMAT}${LINE}${GREEN}
+${INVERSE}Current State${RESET_INVERSE}
+$(show_state)${NOFORMAT}
+${LINE}
+"
 
-		mr)         Restart and reset demo
-
-		r)          reset state
-		v)          toggle verbose
-		q)          quit
-		${LINE}
-		Current State:
-		$(show_state)
-		${LINE}
-	EOF
-
-	echo -n "Input choice: "
+	echo -ne "${INVERSE}Input choice ==>${RESET_INVERSE} "
+	ans=
 	read -r ans
 
+	clear
 	if [[ $ans == ga ]]
 	then
 		while true
 		do
-			echo ${LINE}
 			date
+			echo ${LINE}
 			mkdir -p ~/cf_demo_logs
 			curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/compliance-over-time | jq -r '.[] | "\(.totalObservations),\(.totalFindings)"' | tail -"${GRAPH_MINUTES}" | asciigraph -d ',' -sn 2 -sc green,red -sl "Observations/min,Findings/min" -w 80 -h 12 -ub 12 -p 0 -lb 0 -c "${PICKED_GRAPH_DESC}"
 			echo Waiting $SLEEP_TIME seconds, ^C to return to menu
@@ -187,7 +188,7 @@ run() {
 	elif [[ $ans == gao ]]
 	then
 		curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | "$PAGER"
-	elif [[ $ans == gps ]]
+	elif [[ $ans == gaf ]]
 	then
 	 	curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/findings | jq -r '.[]' | "$PAGER"
 	elif [[ $ans == grc ]]
@@ -196,26 +197,25 @@ run() {
 		wait_for_return
 	elif [[ $ans == pp ]]
 	then
-		#curl -s http://localhost:8080/api/plan/any/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]'
 		curl -s http://localhost:8080/api/plans | jq '.'
-		echo -n "Input plan id: "
+		echo -ne "${INVERSE}Input plan id ==>${RESET_INVERSE} "
 		read -r PICKED_PLAN
-		echo -n "Input description for graph: "
+		echo -ne "${INVERSE}Input description for graph ==>${RESET_INVERSE} "
 		read -r PICKED_GRAPH_DESC
 	elif [[ $ans == pt ]]
 	then
 		show_state
 		echo ${LINE}
-		echo "Input new docker AR_TAG (assessment runtime) value."
-		echo -n "(hit return to keep current value; latest_local may be what you want): "
+		echo -e "${INVERSE}Input new docker AR_TAG (assessment runtime) value."
+		echo -ne "(hit return to keep current value ($AR_TAG); 'latest_local' may be what you want) ==>${RESET_INVERSE} "
 		read -r new_ar_tag
 		if [[ $new_ar_tag != '' ]]
 		then
 			AR_TAG=$new_ar_tag
 		fi
 		echo ${LINE}
-		echo "New docker CS_TAG (configuration server) value."
-		echo -n "(hit return to keep current value; latest_local may be what you want): "
+		echo -e "${INVERSE}Input new docker CS_TAG (configuration server) value."
+		echo -ne "(hit return to keep current value $($CS_TAG); 'latest_local' may be what you want) ==>${RESET_INVERSE} "
 		read -r new_cs_tag
 		if [[ $new_cs_tag != '' ]]
 		then
@@ -242,6 +242,7 @@ run() {
 	elif [[ $ans == plans ]]
 	then
 		curl -s http://localhost:8080/api/plans | jq '.'
+		wait_for_return
 	elif [[ $ans == q ]]
 	then
 		clear_traps
@@ -258,6 +259,9 @@ run() {
 	then
 		set -x
 		set -v
+	elif [[ $ans == "" ]]
+	then
+		true
 	else
 		echo "Unrecognised: $ans"
 		wait_for_return

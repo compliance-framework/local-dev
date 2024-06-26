@@ -39,7 +39,7 @@ pull:      ## Pull the latest images
 down:      ## Stop the services
 	@AR_TAG=$(AR_TAG) CS_TAG=$(CS_TAG) PR_TAG=$(PR_TAG) docker compose down
 
-prune:
+prune:     ## prune docker space
 	@docker system prune -f --volumes
 
 terraform-setup:  ## Set up the vms for the demo
