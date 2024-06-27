@@ -11,7 +11,7 @@ cleanup() {
   EXIT_CODE=$?  # This must be the first line of the cleanup
   # Script cleanup here. Make sure cleanup is idempotent, as it could be called multiple times.
   # If you want more fine-grained cleanup, separate the traps and the functions.
-  run
+  exec $0
 }
 trap cleanup SIGINT SIGTERM ERR EXIT
 clear_traps() {
@@ -158,7 +158,7 @@ lcs)        Configuration service logs
 ln)         NATS logs
 lm)         Mongodb logs
 
-mr)         Restart and reset demo (kills containers and data)
+mr)         Restart demo (kills containers, leaves data)
 
 r)          Reset state of demo script (does not kill containers)
 v)          Toggle verbose flag
@@ -169,6 +169,7 @@ $(show_state)${NOFORMAT}
 ${LINE}
 "
 
+	date
 	echo -ne "${INVERSE}Input choice ==>${RESET_INVERSE} "
 	unset ans
 	read -r ans
@@ -272,7 +273,6 @@ ${LINE}
 		wait_for_return
 	fi
 }
-
 
 reset_state
 while true
