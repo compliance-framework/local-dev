@@ -114,8 +114,9 @@ setup_colors
 cd "$SCRIPT_DIR/.."
 LINE=_____________________________________________________________________
 
+readonly DEFAULT_PICKED_GRAPH_DESC='All observations vs findings'
 reset_state() {
-	PICKED_GRAPH_DESC='All observations vs findings'
+	PICKED_GRAPH_DESC="${DEFAULT_PICKED_GRAPH_DESC}"
 	PICKED_PLAN=any
 	AR_TAG=latest
 	CS_TAG=latest
@@ -197,6 +198,14 @@ ${LINE}
 		read -r PICKED_PLAN
 		echo -ne "${INVERSE}Input description for graph ==>${RESET_INVERSE} "
 		read -r PICKED_GRAPH_DESC
+		if [[ $PICKED_PLAN == '' ]]
+		then
+			PICKED_PLAN=any
+		fi
+		if [[ $PICKED_GRAPH_DESC == '' ]]
+		then
+			PICKED_PLAN="${DEFAULT_PICKED_GRAPH_DESC}"
+		fi
 	elif [[ $ans == pt ]]
 	then
 		show_state
@@ -210,7 +219,7 @@ ${LINE}
 		fi
 		echo ${LINE}
 		echo -e "${INVERSE}Input new docker CS_TAG (configuration server) value."
-		echo -ne "(hit return to keep current value $($CS_TAG); 'latest_local' may be what you want) ==>${RESET_INVERSE} "
+		echo -ne "(hit return to keep current value ($CS_TAG); 'latest_local' may be what you want) ==>${RESET_INVERSE} "
 		read -r new_cs_tag
 		if [[ $new_cs_tag != '' ]]
 		then
