@@ -11,7 +11,7 @@ cleanup() {
   EXIT_CODE=$?  # This must be the first line of the cleanup
   # Script cleanup here. Make sure cleanup is idempotent, as it could be called multiple times.
   # If you want more fine-grained cleanup, separate the traps and the functions.
-  exec $0
+  start
 }
 trap cleanup SIGINT SIGTERM ERR EXIT
 clear_traps() {
@@ -275,7 +275,11 @@ ${LINE}
 }
 
 reset_state
-while true
-do
-	run
-done
+
+start() {
+	while true
+	do
+		run
+	done
+}
+
