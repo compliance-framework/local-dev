@@ -1,0 +1,39 @@
+mongodb:
+  image: mongo
+  tag: latest
+  service:
+    port: 27017
+  storage:
+    size: 10Gi
+
+configurationService:
+  image: ghcr.io/compliance-framework/configuration-service
+  tag: latest
+  service:
+    port: 8080
+  env:
+    natsUri: "nats://nats:4222"
+    mongoUri: "mongodb://mongodb:27017"
+
+pluginRegistry:
+  image: ghcr.io/compliance-framework/plugin-registry
+  tag: latest
+  service:
+    port: 3001
+
+nats:
+  image: nats
+  tag: latest
+  service:
+    port: 4222
+  config: |-
+    # Your NATS server configuration here
+
+assessmentRuntime:
+  image: ghcr.io/compliance-framework/assessment-runtime
+  tag: latest
+  env:
+    azureClientId: ""
+    azureClientSecret: ""
+    azureTenantId: ""
+

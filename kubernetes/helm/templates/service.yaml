@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configuration-service
+spec:
+  ports:
+  - port: {{ .Values.configurationService.service.port }}
+    targetPort: 8080
+  selector:
+    app: configuration-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+spec:
+  ports:
+  - port: {{ .Values.mongodb.service.port }}
+    targetPort: {{ .Values.mongodb.service.port }}
+  clusterIP: None
+  selector:
+    app: mongodb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plugin-registry
+spec:
+  ports:
+  - port: {{ .Values.pluginRegistry.service.port }}
+    targetPort: 80
+  selector:
+    app: plugin-registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats
+spec:
+  ports:
+  - port: {{ .Values.nats.service.port }}
+    targetPort: 4222
+  selector:
+    app: nats

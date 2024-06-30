@@ -17,7 +17,24 @@ CF_SSH_HOST=$CF_SSH_HOST
 CF_SSH_COMMAND=$CF_SSH_COMMAND
 
 echo "Creating Plan: Sample Assessment Plan"
-plan_id="$(curl -s localhost:8080/api/plan --header 'Content-Type: application/json' -d '{"title": "Demo SSH Assessment Plan"}' | jq -r .id)"
+while true
+do
+       set +e
+       if ! plan_id="$(curl -s localhost:8080/api/plan --header 'Content-Type: application/json' -d '{"title": "Demo SSH Assessment Plan"}' | jq -r .id)"
+       then
+               echo "Not ready yet, waiting..."
+               sleep 5
+       else
+               if [[ $plan_id == null ]]
+               then
+                       echo "Not ready yet, waiting..."
+                       sleep 5
+               else
+                       break
+               fi
+       fi
+       set -e
+done
 echo "Plan ID: ${plan_id}"
 
 echo "Creating Task: Check Server via SSH"

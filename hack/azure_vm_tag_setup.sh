@@ -11,7 +11,24 @@ echo "____________________________________________________________"
 echo "Running CF setup for AZURE_SUBSCRIPTION_ID: $AZURE_SUBSCRIPTION_ID"
 
 echo "Creating Plan: Sample Assessment Plan"
-plan_id="$(curl -s localhost:8080/api/plan --header 'Content-Type: application/json' -d '{"title": "Demo Azure VM Tag Assessment Plan"}' | jq -r .id)"
+while true
+do
+	set +e
+	if ! plan_id="$(curl -s localhost:8080/api/plan --header 'Content-Type: application/json' -d '{"title": "Demo Azure VM Tag Assessment Plan"}' | jq -r .id)"
+	then
+		echo "Not ready yet, waiting..."
+		sleep 5
+	else
+		if [[ $plan_id == null ]]
+		then
+			echo "Not ready yet, waiting..."
+			sleep 5
+		else
+			break
+		fi
+	fi
+	set -e
+done
 echo "Plan ID: ${plan_id}"
 
 echo "Creating Task: Check All the VMs"
@@ -22,4 +39,4 @@ echo "Creating Plan: for subscription id: $AZURE_SUBSCRIPTION_ID"
 activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"CheckVMs for dataclassification tag", "description":"This activity checks for the existence of a datalassification tag", "provider":{"name":"azurecli", "package":"azurecli", "params":{}, "configuration":{"subscriptionId":"'${AZURE_SUBSCRIPTION_ID}'"}, "version":"1.0.0"}, "subjects":{"title":"VMs", "description":"All VMs", "labels":{}}}' | jq -r .id)"
 echo "Activity ID: ${activity_id}"
 
-curl "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
+curl -s "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"

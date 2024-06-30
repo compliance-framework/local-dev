@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configuration-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configuration-service
+  template:
+    metadata:
+      labels:
+        app: configuration-service
+    spec:
+      containers:
+      - name: configuration-service
+        image: {{ .Values.configurationService.image }}:{{ .Values.configurationService.tag }}
+        ports:
+        - containerPort: {{ .Values.configurationService.service.port }}
+        env:
+        - name: NATS_URI
+          value: {{ .Values.configurationService.env.natsUri }}
+        - name: MONGO_URI
+          value: {{ .Values.configurationService.env.mongoUri }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plugin-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plugin-registry
+  template:
+    metadata:
+      labels:
+        app: plugin-registry
+    spec:
+      containers:
+      - name: plugin-registry
+        image: {{ .Values.pluginRegistry.image }}:{{ .Values.pluginRegistry.tag }}
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+      - name: nats
+        image: {{ .Values.nats.image }}:{{ .Values.nats.tag }}
+        ports:
+        - containerPort: {{ .Values.nats.service.port }}
+        volumeMounts:
+        - name: nats-config
+          mountPath: /nats-server.conf
+          subPath: nats-server.conf
+      volumes:
+      - name: nats-config
+        configMap:
+          name: nats-server-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assessment-runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: assessment-runtime
+  template:
+    metadata:
+      labels:
+        app: assessment-runtime
+    spec:
+      containers:
+      - name: assessment-runtime
+        image: {{ .Values.assessmentRuntime.image }}:{{ .Values.assessmentRuntime.tag }}
+        env:
+        - name: AZURE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: client-id
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: client-secret
+        - name: AZURE_TENANT_ID
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: tenant-id

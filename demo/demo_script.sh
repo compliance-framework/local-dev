@@ -120,13 +120,14 @@ reset_state() {
 	PICKED_PLAN=any
 	AR_TAG=latest
 	CS_TAG=latest
+	PR_TAG=latest
 	GRAPH_MINUTES=360
 }
 
 show_state() {
 	set -o | grep xtrace
 	set -o | grep verbose
-	echo "CS_TAG='$CS_TAG'    AR_TAG='$AR_TAG'    PICKED_PLAN='$PICKED_PLAN'    PICKED_GRAPH_DESC='$PICKED_GRAPH_DESC'"
+	echo "CS_TAG='$CS_TAG'    AR_TAG='$AR_TAG'    PR_TAG='$PR_TAG'     PICKED_PLAN='$PICKED_PLAN'    PICKED_GRAPH_DESC='$PICKED_GRAPH_DESC'"
 }
 
 wait_for_return() {
@@ -145,20 +146,14 @@ ${INVERSE}Options${RESET_INVERSE}
 ga)         Graph observations vs findings
 gao)        Get all observations (summary)
 gaf)        Get all findings
-grc)        Get running containers
+
+k9s)        Run k9s
 
 plans)      Get plans
 pp)         Pick a plan to focus on
 pt)         Pick docker container tags
 
-jm)         Jump onto mongo
-
-lar)        Assessment runtime logs
-lcs)        Configuration service logs
-ln)         NATS logs
-lm)         Mongodb logs
-
-mr)         Restart demo (kills containers, leaves data)
+mr)         Restart demo
 
 r)          Reset state of demo script (does not kill containers)
 v)          Toggle verbose flag
@@ -188,10 +183,6 @@ ${LINE}
 	elif [[ $ans == gaf ]]
 	then
 	 	curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/findings | jq -r '.[]' | "$PAGER"
-	elif [[ $ans == grc ]]
-	then
-	 	docker ps
-		wait_for_return
 	elif [[ $ans == pp ]]
 	then
 		curl -s http://localhost:8080/api/plans | jq '.'
@@ -226,24 +217,20 @@ ${LINE}
 		then
 			CS_TAG=$new_cs_tag
 		fi
-	elif [[ $ans == jm ]]
+		echo ${LINE}
+		echo -e "${INVERSE}Input new docker PR_TAG (configuration server) value."
+		echo -ne "(hit return to keep current value ($PR_TAG); 'latest_local' may be what you want) ==>${RESET_INVERSE} "
+		read -r new_pr_tag
+		if [[ $new_pr_tag != '' ]]
+		then
+			PR_TAG=$new_pr_tag
+		fi
+	elif [[ $ans == k9s ]]
 	then
-		docker exec -ti local-dev-mongodb-1 mongosh
-	elif [[ $ans == lm ]]
-	then
-		docker logs local-dev-mongodb-1 | $PAGER
-	elif [[ $ans == lar ]]
-	then
-		docker logs local-dev-assessment-runtime-1 | $PAGER
-	elif [[ $ans == lcs ]]
-	then
-		docker logs local-dev-configuration-service-1 | $PAGER
-	elif [[ $ans == ln ]]
-	then
-		docker logs local-dev-nats-1 | $PAGER
+		k9s
 	elif [[ $ans == mr ]]
 	then
-		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} make restart
+		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} PR_TAG=${PR_TAG} make k8s_restart
 		wait_for_return
 	elif [[ $ans == plans ]]
 	then
