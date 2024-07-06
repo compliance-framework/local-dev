@@ -25,17 +25,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: plugin-registry
-spec:
-  ports:
-  - port: {{ .Values.pluginRegistry.service.port }}
-    targetPort: 80
-  selector:
-    app: plugin-registry
----
-apiVersion: v1
-kind: Service
-metadata:
   name: nats
 spec:
   ports:

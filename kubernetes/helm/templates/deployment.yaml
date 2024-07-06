@@ -26,26 +26,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plugin-registry
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: plugin-registry
-  template:
-    metadata:
-      labels:
-        app: plugin-registry
-    spec:
-      containers:
-      - name: plugin-registry
-        image: {{ .Values.pluginRegistry.image }}:{{ .Values.pluginRegistry.tag }}
-        ports:
-        - containerPort: 80
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: nats
 spec:
   replicas: 1

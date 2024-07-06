@@ -110,8 +110,6 @@ setup_colors
 
 # Script logic here, or `source this_script.sh` in your script if you want to treat it as a library.
 
-# Move to root folder
-cd "$SCRIPT_DIR/.."
 LINE=_____________________________________________________________________
 
 readonly DEFAULT_PICKED_GRAPH_DESC='All observations vs findings'
@@ -151,11 +149,13 @@ k9s)        Run k9s
 
 plans)      Get plans
 pp)         Pick a plan to focus on
+
 pt)         Pick docker container tags
+li)         Load up images
 
-mr)         Restart demo
+r)         Restart demo
 
-r)          Reset state of demo script (does not kill containers)
+x)          Reset state of demo script (does not kill containers)
 v)          Toggle verbose flag
 q)          Quit
 ${NOFORMAT}${LINE}${GREEN}
@@ -207,6 +207,8 @@ ${LINE}
 		read -r new_ar_tag
 		if [[ $new_ar_tag != '' ]]
 		then
+			docker pull ghcr.io/compliance-framework/assessment-runtime:$new_ar_tag || true
+			kind load docker-image ghcr.io/compliance-framework/assessment-runtime:$new_ar_tag -n compliance-framework || true
 			AR_TAG=$new_ar_tag
 		fi
 		echo ${LINE}
@@ -215,36 +217,33 @@ ${LINE}
 		read -r new_cs_tag
 		if [[ $new_cs_tag != '' ]]
 		then
+			docker pull ghcr.io/compliance-framework/configuration-service:$new_cs_tag || true
+			kind load docker-image ghcr.io/compliance-framework/configuration-service:$new_cs_tag -n compliance-framework || true
 			CS_TAG=$new_cs_tag
 		fi
-		echo ${LINE}
-		echo -e "${INVERSE}Input new docker PR_TAG (configuration server) value."
-		echo -ne "(hit return to keep current value ($PR_TAG); 'latest_local' may be what you want) ==>${RESET_INVERSE} "
-		read -r new_pr_tag
-		if [[ $new_pr_tag != '' ]]
-		then
-			PR_TAG=$new_pr_tag
-		fi
+		wait_for_return
+	elif [[ $ans == li ]]
+	then
+		docker pull ghcr.io/compliance-framework/assessment-runtime:${AR_TAG} || true
+		kind load docker-image ghcr.io/compliance-framework/assessment-runtime:${AR_TAG} -n compliance-framework || true
+		docker pull ghcr.io/compliance-framework/configuration-service:${CS_TAG} || true
+		kind load docker-image ghcr.io/compliance-framework/configuration-service:${CS_TAG} -n compliance-framework || true
+		wait_for_return
 	elif [[ $ans == k9s ]]
 	then
 		k9s
-	elif [[ $ans == mr ]]
-	then
-		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} PR_TAG=${PR_TAG} make k8s_restart
-		wait_for_return
 	elif [[ $ans == plans ]]
 	then
 		curl -s http://localhost:8080/api/plans | jq '.'
+		wait_for_return
+	elif [[ $ans == r ]]
+	then
+		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} PR_TAG=${PR_TAG} make k8s_restart
 		wait_for_return
 	elif [[ $ans == q ]]
 	then
 		clear_traps
 		exit 0
-	elif [[ $ans == r ]]
-	then
-		reset_state
-		set +x
-		set +v
 	elif [[ $ans == show ]]
 	then
 		show_state

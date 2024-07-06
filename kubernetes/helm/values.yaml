@@ -15,12 +15,6 @@ configurationService:
     natsUri: "nats://nats:4222"
     mongoUri: "mongodb://mongodb:27017"
 
-pluginRegistry:
-  image: ghcr.io/compliance-framework/plugin-registry
-  tag: latest
-  service:
-    port: 3001
-
 nats:
   image: nats
   tag: latest
