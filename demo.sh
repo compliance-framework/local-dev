@@ -153,7 +153,7 @@ pp)         Pick a plan to focus on
 pt)         Pick docker container tags
 li)         Load up images
 
-r)         Restart demo
+r)          Restart demo
 
 x)          Reset state of demo script (does not kill containers)
 v)          Toggle verbose flag
@@ -224,10 +224,7 @@ ${LINE}
 		wait_for_return
 	elif [[ $ans == li ]]
 	then
-		docker pull ghcr.io/compliance-framework/assessment-runtime:${AR_TAG} || true
-		kind load docker-image ghcr.io/compliance-framework/assessment-runtime:${AR_TAG} -n compliance-framework || true
-		docker pull ghcr.io/compliance-framework/configuration-service:${CS_TAG} || true
-		kind load docker-image ghcr.io/compliance-framework/configuration-service:${CS_TAG} -n compliance-framework || true
+		load_images
 		wait_for_return
 	elif [[ $ans == k9s ]]
 	then
@@ -238,7 +235,7 @@ ${LINE}
 		wait_for_return
 	elif [[ $ans == r ]]
 	then
-		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} PR_TAG=${PR_TAG} make k8s_restart
+		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} PR_TAG=${PR_TAG} make k8s_restart || true
 		wait_for_return
 	elif [[ $ans == q ]]
 	then
@@ -260,7 +257,13 @@ ${LINE}
 	fi
 }
 
-reset_state
+
+load_images() {
+	docker pull ghcr.io/compliance-framework/assessment-runtime:${AR_TAG} || true
+	kind load docker-image ghcr.io/compliance-framework/assessment-runtime:${AR_TAG} -n compliance-framework || true
+	docker pull ghcr.io/compliance-framework/configuration-service:${CS_TAG} || true
+	kind load docker-image ghcr.io/compliance-framework/configuration-service:${CS_TAG} -n compliance-framework || true
+}
 
 start() {
 	while true
@@ -269,3 +272,5 @@ start() {
 	done
 }
 
+reset_state
+start

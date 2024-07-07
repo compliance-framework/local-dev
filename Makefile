@@ -27,7 +27,7 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 #k8s_restart: k8s_down k8s_up azure-vm-tag-setup ssh-setup    ## Tear down local k8s environment and setup new one
-k8s_restart: k8s_down k8s_up azure-vm-tag-setup    ## Tear down local k8s environment and setup new one
+k8s_restart: k8s_down k8s_up ssh-setup    ## Tear down local k8s environment and setup new one
 kind_restart: kind_cluster_down kind_cluster_up k8s_restart    ## Tear down whole cluster and setup k8s anew
 
 azure-vm-tag-setup:  ## Set up a default scenario for CF
@@ -112,3 +112,6 @@ terraform-setup:  ## Set up the vms for the demo
 
 terraform-destroy:   ## Destroy the vms for the demo
 	cd terraform && terraform destroy -target azurerm_subnet.compliance_framework_demo_subnet -target azurerm_virtual_network.compliance_framework_demo_virtual_network -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[0]' -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[1]' -target 'module.vm["0"].azurerm_virtual_machine.compliance_framework_demo_virtual_machine[1]' -target 'module.vm["0"].random_id.compliance_framework_demo_random_id' -auto-approve -var='vm_repeats=1' -var='vm_count=5'
+
+demo:   ## Start the demo
+	./demo.sh
