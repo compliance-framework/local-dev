@@ -138,8 +138,7 @@ wait_for_return() {
 run() {
 	clear
 	set +e
-	echo -e "
-${LINE}${RED}
+	echo -e "${LINE}${RED}
 ${INVERSE}Options${RESET_INVERSE}
 ga)         Graph observations vs findings
 gao)        Get all observations (summary)
@@ -158,6 +157,11 @@ r)          Restart demo
 x)          Reset state of demo script (does not kill containers)
 v)          Toggle verbose flag
 q)          Quit
+
+m COMMAND)  Run \`make COMMAND\`
+${NOFORMAT}${LINE}${GREEN}
+${INVERSE}Make Commands (m COMMAND)${RESET_INVERSE}
+`make help`
 ${NOFORMAT}${LINE}${GREEN}
 ${INVERSE}Current State${RESET_INVERSE}
 $(show_state)${NOFORMAT}
@@ -248,10 +252,15 @@ ${LINE}
 	then
 		set -x
 		set -v
+	elif [[ $(echo $ans | cut -d' ' -f1) == m ]]
+	then
+		make $(echo $ans | cut -d' ' -f2)
+		wait_for_return
 	elif [[ $ans == "" ]]
 	then
 		true
 	else
+		echo $ans | cut -f1
 		echo "Unrecognised: $ans"
 		wait_for_return
 	fi

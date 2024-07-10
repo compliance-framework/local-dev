@@ -43,7 +43,7 @@ echo "Task ID: ${task_id}"
 
 echo "Creating Activity: ssh-cf-plugin every minute"
 
-activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"Check server is OK", "description":"This activity checks the server is OK", "provider":{"name":"ssh-cf-plugin", "image":"ghcr.io/compliance-framework/ssh-cf-plugin", "params":{}, "configuration":{"username":"'${CF_SSH_USERNAME}'","password":"'${CF_SSH_PASSWORD}'","host":"'${CF_SSH_HOST}'","command":"'"$CF_SSH_COMMAND"'","port":"'${CF_SSH_PORT:-2227}'"}, "tag":"latest"}, "subjects":{"title":"Server", "description":"Server: '${CF_SSH_HOST}'", "labels":{}}}' | jq -r '.id')"
+activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"Check server is OK", "description":"This activity checks the server is OK", "provider":{"name":"ssh-cf-plugin", "image":"ghcr.io/compliance-framework/ssh-cf-plugin", "configuration":{"username":"'${CF_SSH_USERNAME}'","password":"'${CF_SSH_PASSWORD}'","host":"'${CF_SSH_HOST}'","command":"'"$CF_SSH_COMMAND"'","port":"'${CF_SSH_PORT:-2227}'"}, "tag":"latest"}, "subjects":{"title":"Server", "description":"Server: '${CF_SSH_HOST}'", "labels":{}}}' | jq -r '.id')"
 
 echo "Activity ID: ${activity_id}"
 

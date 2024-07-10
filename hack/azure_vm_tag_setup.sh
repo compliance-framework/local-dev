@@ -36,7 +36,7 @@ task_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks --header 'Content-
 echo "Task ID: ${task_id}"
 
 echo "Creating Activity: for subscription id: $AZURE_SUBSCRIPTION_ID"
-activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"CheckVMs for dataclassification tag", "description":"This activity checks for the existence of a datalassification tag", "provider":{"name":"azure-cf-plugin", "image":"ghcr.io/compliance-framework/azure-cf-plugin", "params":{}, "configuration":{"subscriptionId":"'${AZURE_SUBSCRIPTION_ID}'"}, "tag":"latest"}, "subjects":{"title":"VMs", "description":"All VMs", "labels":{}}}' | jq -r .id)"
+activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/json' -d '{"title":"CheckVMs for dataclassification tag", "description":"This activity checks for the existence of a datalassification tag", "provider":{"name":"azure-cf-plugin", "image":"ghcr.io/compliance-framework/azure-cf-plugin", "configuration":{"subscriptionId":"'${AZURE_SUBSCRIPTION_ID}'"}, "tag":"latest"}, "subjects":{"title":"VMs", "description":"All VMs", "labels":{}}}' | jq -r .id)"
 echo "Activity ID: ${activity_id}"
 
 curl -s "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
