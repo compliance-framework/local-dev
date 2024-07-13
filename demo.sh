@@ -136,7 +136,7 @@ wait_for_return() {
 
 
 run() {
-	clear
+	#clear
 	set +e
 	echo -e "${LINE}${RED}
 ${INVERSE}Options${RESET_INVERSE}
