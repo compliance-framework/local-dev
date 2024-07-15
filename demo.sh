@@ -118,14 +118,13 @@ reset_state() {
 	PICKED_PLAN=any
 	AR_TAG=latest
 	CS_TAG=latest
-	PR_TAG=latest
 	GRAPH_MINUTES=360
 }
 
 show_state() {
-	set -o | grep xtrace
-	set -o | grep verbose
-	echo "CS_TAG='$CS_TAG'    AR_TAG='$AR_TAG'    PR_TAG='$PR_TAG'     PICKED_PLAN='$PICKED_PLAN'    PICKED_GRAPH_DESC='$PICKED_GRAPH_DESC'"
+	#set -o | grep xtrace
+	#set -o | grep verbose
+	echo "CS_TAG='$CS_TAG'    AR_TAG='$AR_TAG'    PICKED_PLAN='$PICKED_PLAN'    PICKED_GRAPH_DESC='$PICKED_GRAPH_DESC'"
 }
 
 wait_for_return() {
@@ -134,46 +133,43 @@ wait_for_return() {
 	read -r
 }
 
+clear_screen() {
+	# Clear screen, but add lines first to ensure no output is lost
+	for i in {1..$(tput lines)}; do echo ""; done
+	clear
+}
+
 
 run() {
-	#clear
+	clear_screen
 	set +e
-	echo -e "${LINE}${RED}
+	echo -e "${LINE}
+${INVERSE}COMPLIANCE FRAMEWORK DEMO MENU${RESET_INVERSE}
+${LINE}${RED}
 ${INVERSE}Options${RESET_INVERSE}
-ga)         Graph observations vs findings
-gao)        Get all observations (summary)
-gaf)        Get all findings
-
-k9s)        Run k9s
-
-plans)      Get plans
-pp)         Pick a plan to focus on
-
-pt)         Pick docker container tags
-li)         Load up images
-
-r)          Restart demo
-
-x)          Reset state of demo script (does not kill containers)
-v)          Toggle verbose flag
-q)          Quit
-
-m COMMAND)  Run \`make COMMAND\`
+ga)        Graph observations vs findings   gao) Get all observations (summary)
+gaf)       Get all findings
+k9s)       Run k9s
+plans)     Get plans                        pp)  Pick a plan to focus on
+pt)        Pick docker container tags       li)  Load up images
+r)         Restart demo                     br)  Build and restart local
+v)         Toggle verbose flag
+q)         Quit
+m COMMAND) Run \`make COMMAND\`
 ${NOFORMAT}${LINE}${GREEN}
 ${INVERSE}Make Commands (m COMMAND)${RESET_INVERSE}
 `make help`
 ${NOFORMAT}${LINE}${GREEN}
 ${INVERSE}Current State${RESET_INVERSE}
 $(show_state)${NOFORMAT}
-${LINE}
-"
+${LINE}"
 
 	date
 	echo -ne "${INVERSE}Input choice ==>${RESET_INVERSE} "
 	unset ans
 	read -r ans
 
-	clear
+	clear_screen
 	if [[ $ans == ga ]]
 	then
 		date
@@ -239,7 +235,17 @@ ${LINE}
 		wait_for_return
 	elif [[ $ans == r ]]
 	then
-		AR_TAG="${AR_TAG}" CS_TAG=${CS_TAG} PR_TAG=${PR_TAG} make k8s_restart || true
+		AR_TAG=${AR_TAG} CS_TAG=${CS_TAG} make k8s_restart || true
+		wait_for_return
+	elif [[ $ans == br ]]
+	then
+		export AR_TAG=latest_local
+		export CS_TAG=latest_local
+		(cd ../configuration-service && make build-local)
+		(cd ../assessment-runtime && make build-local)
+		load_images
+		pwd
+		make k8s_restart || true
 		wait_for_return
 	elif [[ $ans == q ]]
 	then

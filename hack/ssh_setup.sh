@@ -20,7 +20,6 @@ echo "Creating Plan: Sample Assessment Plan"
 while true
 do
        set +e
-       #if ! plan_id="$(curl -s localhost:8080/api/plan --header 'Content-Type: application/json' -d '{"title": "Demo SSH Assessment Plan"}' | jq -r .id)"
        if ! plan_id="$(curl -s localhost:8080/api/plan --header 'Content-Type: application/yaml' -d 'title: "Demo SSH Assessment Plan"' | jq -r .id)"
        then
                echo "Not ready yet, waiting..."
@@ -55,13 +54,14 @@ description: This activity checks the server is OK
 provider:
   name: ssh-cf-plugin
   image: ghcr.io/compliance-framework/ssh-cf-plugin
+  tag: seed
   configuration:
-    username: "'${CF_SSH_USERNAME}'"
-    password: "'${CF_SSH_PASSWORD}'"
-    host: "'${CF_SSH_HOST}'"
-    command: "'"${CF_SSH_COMMAND}"'"
-    port: "'${CF_SSH_PORT:-2227}'"
-  tag: latest
+    yaml: |
+      username: "'${CF_SSH_USERNAME}'"
+      password: "'${CF_SSH_PASSWORD}'"
+      host: "'${CF_SSH_HOST}'"
+      command: "'"${CF_SSH_COMMAND}"'"
+      port: "'${CF_SSH_PORT:-2227}'"
 subjects:
   title: Server
   description: "Server: '${CF_SSH_HOST}'"
@@ -70,4 +70,6 @@ subjects:
 
 echo "Activity ID: ${activity_id}"
 
-curl -s "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT && echo "Plan ${plan_id} Activated"
+curl -s "localhost:8080/api/plan/${plan_id}/activate" --header 'Content-Type: application/json' -X PUT
+
+echo "Plan ${plan_id} Activated"
