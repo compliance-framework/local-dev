@@ -22,13 +22,13 @@ CS_DOCKER_REPOSITORY ?= ghcr.io/compliance-framework/configuration-service
 KIND_CLUSTER_NAME=compliance-framework
 
 help: ## Display this help.
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 check_cfctl:
 	which cfctl || ( echo cfctl not on PATH, download from https://github.com/compliance-framework/cfctl/releases && false )
 
 k8s_restart: k8s_down k8s_up azure-vm-tag-setup ssh-setup    ## Tear down local k8s environment and setup new one
-kind_restart: kind_cluster_down kind_cluster_up k8s_restart    ## Tear down whole cluster and setup k8s anew
+full_restart: clean_data kind_cluster_down kind_cluster_up k8s_restart    ## Tear down whole cluster and setup k8s anew with fresh data
 
 azure-vm-tag-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing azure-vm-tag-setup"
@@ -69,9 +69,13 @@ kind_load_images: kind_cluster_up     ## Loads local images into kind cluster
 	fi
 
 
-k8s_down:     helm_uninstall ## Stop the k8s services
+k8s_down: helm_uninstall ## Stop the k8s services
 	@pkill -f 'kubectl port-forward service/configuration-service' || true
 	@pkill -f 'kubectl port-forward service/mongodb' || true
+
+clean_data: k8s_down   ## Removes data store in kind pv. Calls k8s_down
+	@kubectl delete pvc $$(kubectl get pvc -o json | jq -r '.items[0].metadata.name') || true
+	@kubectl delete pv $$(kubectl get pv -o json | jq -r '.items[0].metadata.name') || true
 
 helm_uninstall:    ## Uninstall helm package
 	@if helm list -q | grep -q '^compliance-framework$$'; then \

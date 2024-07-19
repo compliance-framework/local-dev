@@ -2,7 +2,7 @@ title: CheckVMs for dataclassification tag
 description: This activity checks for the existence of a datalassification tag
 provider:
   name: azure-cf-plugin
-  tag: seed
+  tag: latest
   image: ghcr.io/compliance-framework/azure-cf-plugin
   configuration:
     yaml:
