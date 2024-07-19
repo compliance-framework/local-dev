@@ -8,7 +8,6 @@
 # https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_parameters
 # More info on the awk command:
 # http://linuxcommand.org/lc3_adv_awk.php
-
 AR_TAG ?= latest
 CS_TAG ?= latest
 
@@ -22,18 +21,20 @@ CS_DOCKER_REPOSITORY ?= ghcr.io/compliance-framework/configuration-service
 
 KIND_CLUSTER_NAME=compliance-framework
 
-
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+check_cfctl:
+	which cfctl || ( echo cfctl not on PATH && false )
 
 k8s_restart: k8s_down k8s_up azure-vm-tag-setup ssh-setup    ## Tear down local k8s environment and setup new one
 kind_restart: kind_cluster_down kind_cluster_up k8s_restart    ## Tear down whole cluster and setup k8s anew
 
-azure-vm-tag-setup:  ## Set up a default scenario for CF
+azure-vm-tag-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing azure-vm-tag-setup"
 	@bash hack/azure_vm_tag_setup.sh
 
-ssh-setup:  ## Set up a default scenario for CF
+ssh-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing ssh-setup"
 	@bash hack/ssh_setup.sh
 

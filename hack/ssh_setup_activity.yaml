@@ -1,0 +1,17 @@
+title: Check server is OK
+description: This activity checks the server is OK
+provider:
+  name: ssh-cf-plugin
+  image: ghcr.io/compliance-framework/ssh-cf-plugin
+  tag: seed
+  configuration:
+    yaml: |
+      username: $CF_SSH_USERNAME
+      password: $CF_SSH_PASSWORD
+      host: $CF_SSH_HOST
+      command: $CF_SSH_COMMAND
+      port: 2227
+subjects:
+  title: Server
+  description: "Server: '$CF_SSH_HOST'"
+  labels: {}

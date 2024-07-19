@@ -1,0 +1,15 @@
+title: CheckVMs for dataclassification tag
+description: This activity checks for the existence of a datalassification tag
+provider:
+  name: azure-cf-plugin
+  tag: seed
+  image: ghcr.io/compliance-framework/azure-cf-plugin
+  configuration:
+    yaml:
+      subscriptionid: ${AZURE_SUBSCRIPTION_ID}
+      tenantid: ${AZURE_TENANT_ID}
+      clientid: ${AZURE_CLIENT_ID}
+subjects:
+  title: VMs
+  description: All VMs
+  labels: {}
