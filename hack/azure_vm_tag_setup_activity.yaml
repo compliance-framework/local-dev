@@ -1,11 +1,11 @@
 title: CheckVMs for dataclassification tag
-description: This activity checks for the existence of a datalassification tag
+description: This activity checks for the existence of a dataclassification tag
 provider:
   name: azure-cf-plugin
   tag: latest
   image: ghcr.io/compliance-framework/azure-cf-plugin
   configuration:
-    yaml:
+    yaml: |
       subscriptionid: ${AZURE_SUBSCRIPTION_ID}
       tenantid: ${AZURE_TENANT_ID}
       clientid: ${AZURE_CLIENT_ID}
