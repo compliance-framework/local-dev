@@ -97,11 +97,11 @@ k8s_up:   kind_cluster_up  ## Bring up the k8s services
         cd kubernetes/helm && helm install compliance-framework . --set $$helm_values; \
 		/bin/echo -n "Waiting to initialise"; \
 		while ! kubectl get pods | grep Running > /dev/null 2>&1; do \
-			sleep 1; \
+			sleep 5; \
 			/bin/echo -n .; \
 		done; \
 		while [[ $$(kubectl get pods | grep -Ev '(Running|STATUS)' | wc -l) -ne 0 ]]; do \
-			sleep 1; \
+			sleep 5; \
 			/bin/echo -n .; \
 		done; \
 		echo "...initialised, forwarding ports..."; \

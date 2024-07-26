@@ -147,15 +147,14 @@ run() {
 ${INVERSE}COMPLIANCE FRAMEWORK DEMO MENU${RESET_INVERSE}
 ${LINE}${RED}
 ${INVERSE}Options${RESET_INVERSE}
-ga)        Graph observations vs findings   gao) Get all observations (summary)
-gaf)       Get all findings
-k9s)       Run k9s
-plans)     Get plans                        pp)  Pick a plan to focus on
-pt)        Pick docker container tags       li)  Load up images
-r)         Restart demo                     br)  Build and restart local
-v)         Toggle verbose flag
-q)         Quit
-m COMMAND) Run \`make COMMAND\`
+ga)           Graph observations vs findings   gao) Get all observations (summary)
+gaf)          Get all findings
+k9s)          Run k9s                          sh)  Give me a shell
+plans)        Get plans                        pp)  Pick a plan to focus on
+pt)           Pick docker container tags       li)  Load up images
+r)            Restart demo                     br)  Build and restart local
+v)            Toggle verbose flag              q)   Quit
+make COMMAND) Run \`make COMMAND\`
 ${NOFORMAT}${LINE}${GREEN}
 ${INVERSE}Make Commands (m COMMAND)${RESET_INVERSE}
 `make help`
@@ -258,13 +257,16 @@ ${LINE}"
 	then
 		set -x
 		set -v
-	elif [[ $(echo $ans | cut -d' ' -f1) == m ]]
+	elif [[ $(echo $ans | cut -d' ' -f1) == make ]]
 	then
 		make $(echo $ans | cut -d' ' -f2)
 		wait_for_return
 	elif [[ $ans == "" ]]
 	then
 		true
+	elif [[ $ans == "sh" ]]
+	then
+		zsh
 	else
 		echo $ans | cut -f1
 		echo "Unrecognised: $ans"
