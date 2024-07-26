@@ -27,8 +27,9 @@ help: ## Display this help.
 check_cfctl:
 	which cfctl || ( echo cfctl not on PATH, download from https://github.com/compliance-framework/cfctl/releases && false )
 
-k8s_restart: k8s_down k8s_up azure-vm-tag-setup ssh-setup    ## Tear down local k8s environment and setup new one
-full_restart: clean_data kind_cluster_down kind_cluster_up k8s_restart    ## Tear down whole cluster and setup k8s anew with fresh data
+k8s_restart: k8s_down k8s_up  ## Tear down local k8s environment and setup new one
+full_restart: full_destroy kind_cluster_up k8s_restart azure-vm-tag-setup ssh-setup  ## Tear down whole cluster, destroy data and setup k8s anew with fresh data
+full_destroy: clean_data k8s_down kind_cluster_down  ## Tear down whole cluster and destroy data
 
 azure-vm-tag-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing azure-vm-tag-setup"
@@ -111,11 +112,11 @@ k8s_up:   kind_cluster_up  ## Bring up the k8s services
 prune:     ## prune docker space
 	@docker system prune -f --volumes
 
-terraform-setup:  ## Set up the vms for the demo
-	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=5' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=5'
-
-terraform-destroy:   ## Destroy the vms for the demo
-	cd terraform && terraform destroy -target azurerm_subnet.compliance_framework_demo_subnet -target azurerm_virtual_network.compliance_framework_demo_virtual_network -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[0]' -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[1]' -target 'module.vm["0"].azurerm_virtual_machine.compliance_framework_demo_virtual_machine[1]' -target 'module.vm["0"].random_id.compliance_framework_demo_random_id' -auto-approve -var='vm_repeats=1' -var='vm_count=5'
+#terraform-setup:  ## Set up the vms for the demo
+#	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=5' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=5'
+#
+#terraform-destroy:   ## Destroy the vms for the demo
+#	cd terraform && terraform destroy -target azurerm_subnet.compliance_framework_demo_subnet -target azurerm_virtual_network.compliance_framework_demo_virtual_network -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[0]' -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[1]' -target 'module.vm["0"].azurerm_virtual_machine.compliance_framework_demo_virtual_machine[1]' -target 'module.vm["0"].random_id.compliance_framework_demo_random_id' -auto-approve -var='vm_repeats=1' -var='vm_count=5'
 
 demo:   ## Start the demo
 	./demo.sh

@@ -26,7 +26,7 @@ Once the quickstart has been followed, there will be:
 
 1. Make you have [kind](https://kind.sigs.k8s.io/) installed.
 
-1. Make sure azure client variables are set in a .env file (ignored by git) in the root folder **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
+1. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
 
 ```zsh
 export AZURE_SUBSCRIPTION_ID='[REPLACEME]'
