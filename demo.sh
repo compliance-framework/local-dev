@@ -143,27 +143,21 @@ clear_screen() {
 run() {
 	clear_screen
 	set +e
-	echo -e "${LINE}
-${INVERSE}COMPLIANCE FRAMEWORK DEMO MENU${RESET_INVERSE}
+	echo -e "${INVERSE}COMPLIANCE FRAMEWORK DEMO MENU - `date`${RESET_INVERSE}
 ${LINE}${RED}
 ${INVERSE}Options${RESET_INVERSE}
 ga)           Graph observations vs findings   gao) Get all observations (summary)
-gaf)          Get all findings
-k9s)          Run k9s                          sh)  Give me a shell
+gaf)          Get all findings                 k9s) Run k9s
 plans)        Get plans                        pp)  Pick a plan to focus on
 pt)           Pick docker container tags       li)  Load up images
 r)            Restart demo                     br)  Build and restart local
-v)            Toggle verbose flag              q)   Quit
-make COMMAND) Run \`make COMMAND\`
+v)            Toggle verbose flag              sh)  Give me a shell
+make COMMAND) Run \`make COMMAND\`               cs)  Show current state
+q)            Quit
 ${NOFORMAT}${LINE}${GREEN}
-${INVERSE}Make Commands (m COMMAND)${RESET_INVERSE}
-`make help`
-${NOFORMAT}${LINE}${GREEN}
-${INVERSE}Current State${RESET_INVERSE}
-$(show_state)${NOFORMAT}
-${LINE}"
+${INVERSE}Make Commands (m COMMAND)${RESET_INVERSE}`make help`
+${NOFORMAT}${LINE}"
 
-	date
 	echo -ne "${INVERSE}Input choice ==>${RESET_INVERSE} "
 	unset ans
 	read -r ans
@@ -250,7 +244,7 @@ ${LINE}"
 	then
 		clear_traps
 		exit 0
-	elif [[ $ans == show ]]
+	elif [[ $ans == cs ]]
 	then
 		show_state
 	elif [[ $ans == v ]]

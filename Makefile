@@ -29,6 +29,7 @@ check_cfctl:
 
 k8s_restart: k8s_down k8s_up  ## Tear down local k8s environment and setup new one
 full_restart: full_destroy kind_cluster_up k8s_restart azure-vm-tag-setup ssh-setup  ## Tear down whole cluster, destroy data and setup k8s anew with fresh data
+k8s_destroy: clean_data k8s_down  ## Tear down whole cluster and destroy data
 full_destroy: clean_data k8s_down kind_cluster_down  ## Tear down whole cluster and destroy data
 
 azure-vm-tag-setup: check_cfctl  ## Set up a default scenario for CF
