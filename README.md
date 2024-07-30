@@ -93,3 +93,18 @@ You can run the various commands to interact with the server, eg
 You may need to wait a minute or so for results to start coming in.
 
 `k9s` - starts a k9s window (assuming you have it installed)
+
+## Quickstart Gotchas
+
+- There are known issues running MongoDB on non-AVX-supporting processors. In this event you will see this message in the mongodb-0 logs:
+
+```
+$ kubectl logs mongodb-0
+
+WARNING: MongoDB 5.0+ requires a CPU with AVX support, and your current system does not appear to have that!
+  see https://jira.mongodb.org/browse/SERVER-54407
+  see also https://www.mongodb.com/community/forums/t/mongodb-5-0-cpu-intel-g4650-compatibility/116610/2
+  see also https://github.com/docker-library/mongo/issues/485#issuecomment-891991814
+```
+
+
