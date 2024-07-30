@@ -26,13 +26,13 @@ Once the quickstart has been followed, there will be:
 
 These instructions will get you going quickly with two plugins (azure and ssh).
 
-1. Make you have [KIND](https://kind.sigs.k8s.io/) installed.
+1. Install [KIND](https://kind.sigs.k8s.io/)
 
 This sets up the Kubernetes cluster you will run Compliance Framework's components on.
 
-1. Download the latest version of `cfctl` from the [releases](https://github.com/compliance-framework/cfctl/releases) page, and place in your `PATH`, eg `mv cfctl /usr/local/bin`
+2. Download the latest version of `cfctl` from the [releases](https://github.com/compliance-framework/cfctl/releases) page, and place in your `PATH`, eg `mv cfctl /usr/local/bin`
 
-2. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
+3. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
 
 ```zsh
 export AZURE_SUBSCRIPTION_ID='[REPLACEME]'
@@ -50,37 +50,37 @@ export CF_SSH_HOST='[REPLACEME]'
 
 Optionally, you can set `CF_SSH_PORT` to a port other than the default (`22`) if your server uses a non-standard port.
 
-3. Source the `.env` file
+4. Source the `.env` file
 
 `source .env`
 
-4. Initialise the kind server
+5. Initialise the kind server
 
 `make kind_cluster_up`
 
 This will bring up the KIND cluster.
 
-5. Start up the compliance framework
+6. Start up the compliance framework
 
 `make k8s_up`
 
 This brings up the pods and services that make up the CF cluster, and the persistent host disk that means that data is kept between `make k8s_restart`s.
 
-6. (Optional) Set up the azure plugin
+7. (Optional) Set up the azure plugin
 
 `make azure-vm-tag-setup`
 
-7. (Optional) Set up the ssh plugin
+8. (Optional) Set up the ssh plugin
 
 `make ssh-setup`
 
-8. (Optional) Install [k9s](https://k9scli.io/)
+9. (Optional) Install [k9s](https://k9scli.io/)
 
-9. Run the demo script
+10. Run the demo script
 
 `./demo.sh`
 
-10. Interact with the demo script
+11. Interact with the demo script
 
 You can run the various commands to interact with the server, eg
 
