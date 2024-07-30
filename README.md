@@ -24,7 +24,13 @@ Once the quickstart has been followed, there will be:
 
 # Quickstart
 
-1. Make you have [kind](https://kind.sigs.k8s.io/) installed.
+These instructions will get you going quickly with two plugins (azure and ssh).
+
+1. Make you have [KIND](https://kind.sigs.k8s.io/) installed.
+
+This sets up the Kubernetes cluster you will run Compliance Framework's components on.
+
+1. Download the latest version of `cfctl` from the [releases](https://github.com/compliance-framework/cfctl/releases) page, and place in your `PATH`, eg `mv cfctl /usr/local/bin`
 
 1. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
 
@@ -40,4 +46,50 @@ export CF_SSH_COMMAND='[REPLACEME]'
 export CF_SSH_HOST='[REPLACEME]'
 ```
 
-2. `make help` should give you commands to run to set up various scenarios. See especially `make k8s_restart`, designed to refresh the environment from scratch
+`CF_SSH_COMMAND`
+
+Optionally, you can set `CF_SSH_PORT` to a port other than the default (`22`) if your server uses a non-standard port.
+
+1. Source the `.env` file
+
+`source .env`
+
+1. Initialise the kind server
+
+`make kind_cluster_up`
+
+This will bring up the KIND cluster.
+
+1. Start up the compliance framework
+
+`make k8s_up`
+
+This brings up the pods and services that make up the CF cluster, and the persistent host disk that means that data is kept between `make k8s_restart`s.
+
+1. (Optional) Set up the azure plugin
+
+`make azure-vm-tag-setup`
+
+1. (Optional) Set up the ssh plugin
+
+`make ssh-setup`
+
+1. (Optional) Install [k9s](https://k9scli.io/)
+
+1. Run the demo script
+
+`./demo.sh`
+
+1. Interact with the demo script
+
+You can run the various commands to interact with the server, eg
+
+`ga` - show the graph of observations and findings
+
+`gao` - get all observations
+
+`gaf` - get all findings
+
+You may need to wait a minute or so for results to start coming in.
+
+`k9s` - starts a k9s window (assuming you have it installed)
