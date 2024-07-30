@@ -32,7 +32,7 @@ This sets up the Kubernetes cluster you will run Compliance Framework's componen
 
 1. Download the latest version of `cfctl` from the [releases](https://github.com/compliance-framework/cfctl/releases) page, and place in your `PATH`, eg `mv cfctl /usr/local/bin`
 
-1. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
+2. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
 
 ```zsh
 export AZURE_SUBSCRIPTION_ID='[REPLACEME]'
@@ -50,37 +50,37 @@ export CF_SSH_HOST='[REPLACEME]'
 
 Optionally, you can set `CF_SSH_PORT` to a port other than the default (`22`) if your server uses a non-standard port.
 
-1. Source the `.env` file
+3. Source the `.env` file
 
 `source .env`
 
-1. Initialise the kind server
+4. Initialise the kind server
 
 `make kind_cluster_up`
 
 This will bring up the KIND cluster.
 
-1. Start up the compliance framework
+5. Start up the compliance framework
 
 `make k8s_up`
 
 This brings up the pods and services that make up the CF cluster, and the persistent host disk that means that data is kept between `make k8s_restart`s.
 
-1. (Optional) Set up the azure plugin
+6. (Optional) Set up the azure plugin
 
 `make azure-vm-tag-setup`
 
-1. (Optional) Set up the ssh plugin
+7. (Optional) Set up the ssh plugin
 
 `make ssh-setup`
 
-1. (Optional) Install [k9s](https://k9scli.io/)
+8. (Optional) Install [k9s](https://k9scli.io/)
 
-1. Run the demo script
+9. Run the demo script
 
 `./demo.sh`
 
-1. Interact with the demo script
+10. Interact with the demo script
 
 You can run the various commands to interact with the server, eg
 
