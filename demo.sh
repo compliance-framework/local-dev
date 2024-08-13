@@ -128,6 +128,8 @@ show_state() {
 }
 
 wait_for_return() {
+	# Clear input buffer
+	while read -t 0.01 -n 1; do : ; done
 	echo ${LINE}
 	echo "Done, return to continue"
 	read -r
@@ -247,11 +249,12 @@ ${NOFORMAT}${LINE}"
 	elif [[ $ans == cs ]]
 	then
 		show_state
+		wait_for_return
 	elif [[ $ans == v ]]
 	then
 		set -x
 		set -v
-	elif [[ $(echo $ans | cut -d' ' -f1) == make ]]
+	elif [[ $(echo $ans | cut -d' ' -f1) == make || $(echo $ans | cut -d' ' -f1) == m ]]
 	then
 		make $(echo $ans | cut -d' ' -f2)
 		wait_for_return
@@ -263,7 +266,7 @@ ${NOFORMAT}${LINE}"
 		zsh
 	else
 		echo $ans | cut -f1
-		echo "Unrecognised: $ans"
+		echo "Unrecognised: $ans - did you mean 'make $ans'?"
 		wait_for_return
 	fi
 }
