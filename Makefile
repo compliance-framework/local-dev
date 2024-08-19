@@ -21,16 +21,22 @@ CS_DOCKER_REPOSITORY ?= ghcr.io/compliance-framework/configuration-service
 
 KIND_CLUSTER_NAME=compliance-framework
 
-help: ## Display this help.
+help: ## Display this concise help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-check_cfctl:
+help-all: ## Display all help items.
+	@awk 'BEGIN {FS = ":.*#"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?#/ { printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+check_cfctl:  # Check cfctl is available on PATH
 	which cfctl || ( echo cfctl not on PATH, download from https://github.com/compliance-framework/cfctl/releases && false )
 
-k8s_restart: k8s_down k8s_up  ## Tear down local k8s environment and setup new one
-full_restart: full_destroy kind_cluster_up k8s_restart azure-vm-tag-setup ssh-setup  ## Tear down whole cluster, destroy data and setup k8s anew with fresh data
-k8s_destroy: clean_data k8s_down  ## Tear down whole cluster and destroy data
-full_destroy: clean_data k8s_down kind_cluster_down  ## Tear down whole cluster and destroy data
+full_restart: full_destroy kind_cluster_up k8s_restart   ## Tear down whole cluster, destroy data and setup k8s anew with fresh data
+full_destroy: clean_data k8s_down kind_cluster_down      ## Tear down whole cluster and destroy data
+
+setup-plans: azure-vm-tag-setup ssh-setup privateer-example-setup  ## Set up all the plans
+
+k8s_restart: k8s_down k8s_up  # Tear down local k8s environment and setup new one
+k8s_destroy: clean_data k8s_down  # Tear down whole cluster and destroy data
 
 azure-vm-tag-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing azure-vm-tag-setup"
@@ -44,7 +50,7 @@ privateer-example-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing privateer-example-setup"
 	@bash hack/privateer_example_setup.sh
 
-kind_cluster_down:   ## Destroy kind cluster
+kind_cluster_down:   # Destroy kind cluster
 	@if kind get clusters | grep -q '^$(KIND_CLUSTER_NAME)$$'; then \
 		echo "Deleting kind cluster '$(KIND_CLUSTER_NAME)'..."; \
 		kind delete cluster -n $(KIND_CLUSTER_NAME); \
@@ -52,7 +58,7 @@ kind_cluster_down:   ## Destroy kind cluster
 		echo "Kind cluster '$(KIND_CLUSTER_NAME)' does not exist."; \
 	fi
 
-kind_cluster_up:   ## Create kind cluster
+kind_cluster_up:   # Create kind cluster
 	@if kind get clusters | grep -q '^$(KIND_CLUSTER_NAME)$$'; then \
 		echo "Kind cluster '$(KIND_CLUSTER_NAME)' already exists."; \
 	else \
@@ -75,15 +81,15 @@ kind_load_images: kind_cluster_up     ## Loads local images into kind cluster
 	fi
 
 
-k8s_down: helm_uninstall ## Stop the k8s services
+k8s_down: helm_uninstall # Stop the k8s services
 	@pkill -f 'kubectl port-forward service/configuration-service' || true
 	@pkill -f 'kubectl port-forward service/mongodb' || true
 
-clean_data: k8s_down   ## Removes data store in kind pv. Calls k8s_down
+clean_data: k8s_down   # Removes data store in kind pv. Calls k8s_down
 	@kubectl delete pvc $$(kubectl get pvc -o json | jq -r '.items[0].metadata.name') || true
 	@kubectl delete pv $$(kubectl get pv -o json | jq -r '.items[0].metadata.name') || true
 
-helm_uninstall:    ## Uninstall helm package
+helm_uninstall:    # Uninstall helm package
 	@if helm list -q | grep -q '^compliance-framework$$'; then \
 		echo "uninstalling compliance-framework..."; \
 		helm uninstall compliance-framework; \
@@ -91,7 +97,7 @@ helm_uninstall:    ## Uninstall helm package
 		echo "compliance-framework already uninstalled"; \
 	fi
 
-k8s_up:   kind_cluster_up  ## Bring up the k8s services
+k8s_up:   kind_cluster_up  # Bring up the k8s services
 	@if helm list -q | grep -q '^compliance-framework$$'; \
 	then \
 		echo "Helm chart 'compliance-framework' already installed. Run 'make helm_uninstall' to remove "; \
@@ -114,14 +120,8 @@ k8s_up:   kind_cluster_up  ## Bring up the k8s services
 		kubectl port-forward service/mongodb 27017:27017 & \
 	fi
 
-prune:     ## prune docker space
+prune:     # prune docker space
 	@docker system prune -f --volumes
-
-#terraform-setup:  ## Set up the vms for the demo
-#	cd terraform && terraform init && (terraform import -var='vm_repeats=1' -var='vm_count=5' azurerm_resource_group.compliance_framework_demo_resource_group /subscriptions/$(AZURE_SUBSCRIPTION_ID)/resourceGroups/compliance-framework-demo-1 || true) && terraform apply -auto-approve -var='vm_repeats=1' -var='vm_count=5'
-#
-#terraform-destroy:   ## Destroy the vms for the demo
-#	cd terraform && terraform destroy -target azurerm_subnet.compliance_framework_demo_subnet -target azurerm_virtual_network.compliance_framework_demo_virtual_network -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[0]' -target 'module.vm["0"].azurerm_network_interface.compliance_framework_demo_network_interface[1]' -target 'module.vm["0"].azurerm_virtual_machine.compliance_framework_demo_virtual_machine[1]' -target 'module.vm["0"].random_id.compliance_framework_demo_random_id' -auto-approve -var='vm_repeats=1' -var='vm_count=5'
 
 demo:   ## Start the demo
 	./demo.sh

@@ -266,7 +266,12 @@ ${NOFORMAT}${LINE}"
 		zsh
 	else
 		echo $ans | cut -f1
-		echo "Unrecognised: $ans - did you mean 'make $ans'?"
+		echo "Unrecognised: $ans - did you mean 'make $ans'? (y/n)"
+		read -r yn
+		if [[ $yn == y ]]
+		then
+			make $ans
+		fi
 		wait_for_return
 	fi
 }
