@@ -174,7 +174,7 @@ ${NOFORMAT}${LINE}"
 		wait_for_return
 	elif [[ $ans == gao ]]
 	then
-		curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/observations | jq '[.[] | {collected, description, props: [.props[] | {name, value}]}]' | "$PAGER"
+		curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/observations | jq '.[] | {collected, description, props: (if .props then [.props[] | {name, value}] else {} end)}' | "${PAGER}"
 	elif [[ $ans == gaf ]]
 	then
 	 	curl -s http://localhost:8080/api/plan/"${PICKED_PLAN}"/results/any/findings | jq -r '.[]' | "$PAGER"

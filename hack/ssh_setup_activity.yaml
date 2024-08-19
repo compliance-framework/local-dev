@@ -3,7 +3,7 @@ description: This activity checks the server is OK
 provider:
   name: ssh-cf-plugin
   image: ghcr.io/compliance-framework/ssh-cf-plugin
-  tag: seed
+  tag: latest
   configuration:
     yaml: |
       username: $CF_SSH_USERNAME
