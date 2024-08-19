@@ -1,0 +1,19 @@
+title: Check privateer example result
+description: This activity checks the privateer example result
+provider:
+  name: ssh-cf-plugin
+  image: ghcr.io/compliance-framework/privateer-example-cf-plugin
+  tag: latest
+  configuration:
+    yaml: |
+      loglevel: Debug
+      WriteDirectory: sample_test_output
+      raids:
+        SVC:
+          tactics:
+            - CCC_OS_Taxonomy
+            - CCC_OS_Security
+subjects:
+  title: Privateer example
+  description: Privateer example
+  labels: {}

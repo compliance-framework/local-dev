@@ -40,6 +40,10 @@ ssh-setup: check_cfctl  ## Set up a default scenario for CF
 	@echo "Doing ssh-setup"
 	@bash hack/ssh_setup.sh
 
+privateer-example-setup: check_cfctl  ## Set up a default scenario for CF
+	@echo "Doing privateer-example-setup"
+	@bash hack/privateer_example_setup.sh
+
 kind_cluster_down:   ## Destroy kind cluster
 	@if kind get clusters | grep -q '^$(KIND_CLUSTER_NAME)$$'; then \
 		echo "Deleting kind cluster '$(KIND_CLUSTER_NAME)'..."; \
