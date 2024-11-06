@@ -10,7 +10,7 @@ provider:
       password: $CF_SSH_PASSWORD
       host: $CF_SSH_HOST
       command: $CF_SSH_COMMAND
-      port: 2227
+      port: $CF_SSH_PORT
 subjects:
   title: Server
   description: "Server: '$CF_SSH_HOST'"

@@ -5,16 +5,17 @@ set -euo pipefail
 src_folder="$(pwd)/${0%/*}"
 cd $src_folder
 
-source ../.env
+source ../.env 
 
 echo "____________________________________________________________"
 echo "Running CF setup for SSH plugin"
 
 # Refer to the vars to be sure they exist
-CF_SSH_USERNAME=$CF_SSH_USERNAME
-CF_SSH_PASSWORD=$CF_SSH_PASSWORD
-CF_SSH_HOST=$CF_SSH_HOST
-CF_SSH_COMMAND=$CF_SSH_COMMAND
+export CF_SSH_USERNAME=$CF_SSH_USERNAME
+export CF_SSH_PASSWORD=$CF_SSH_PASSWORD
+export CF_SSH_HOST=$CF_SSH_HOST
+export CF_SSH_COMMAND=$CF_SSH_COMMAND
+export CF_SSH_PORT=${CF_SSH_PORT:-"22"}
 
 echo "Creating Plan: Sample Assessment Plan"
 while true
