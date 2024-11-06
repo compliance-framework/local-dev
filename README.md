@@ -32,7 +32,9 @@ This sets up the Kubernetes cluster you will run Compliance Framework's componen
 
 2. Download the latest version of `cfctl` from the [releases](https://github.com/compliance-framework/cfctl/releases) page, and place in your `PATH`, eg `mv cfctl /usr/local/bin`
 
-3. Make sure azure client variables are set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
+3. Make sure client configuration set in a `.env` file (ignored by git) in the root folder of this repository **(NOTE _this example project uses Azure_ but CF is not Azure specific)**:
+
+This step is optional depending on which plugins you want to run (see 'Set up the azure plugin'/'Set up the ssh plugin' below).
 
 ```zsh
 export AZURE_SUBSCRIPTION_ID='[REPLACEME]'
