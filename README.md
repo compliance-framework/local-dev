@@ -1,5 +1,7 @@
 # Compliance-Framework Infrastructure Example
 
+
+
 This project helps setting up infrastructure for local development.
 
 It could be considered an example deployment as opposed to actually part of the working code.
@@ -76,11 +78,13 @@ This brings up the pods and services that make up the CF cluster, and the persis
 
 9. (Optional) Install [k9s](https://k9scli.io/)
 
-10. Run the demo script
+10. (Optional, for `ga` command below) Install [asciigraph](https://github.com/guptarohit/asciigraph)
+
+11. Run the demo script
 
 `./demo.sh`
 
-11. Interact with the demo script
+12. Interact with the demo script
 
 You can run the various commands to interact with the server, eg
 
