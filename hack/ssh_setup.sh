@@ -5,7 +5,7 @@ set -euo pipefail
 src_folder="$(pwd)/${0%/*}"
 cd $src_folder
 
-source ../.env 
+source ../.env
 
 echo "____________________________________________________________"
 echo "Running CF setup for SSH plugin"
