@@ -1,7 +1,5 @@
 # Compliance-Framework Infrastructure Example
 
-
-
 This project helps setting up infrastructure for local development.
 
 It could be considered an example deployment as opposed to actually part of the working code.
