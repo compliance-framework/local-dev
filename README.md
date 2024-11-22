@@ -24,6 +24,19 @@ Once the quickstart has been followed, there will be:
 
 # Quickstart
 
+## Using Docker Compose
+
+Docker Compose can be used to easily run the necessary components for the Compliance Framework.
+
+```shell
+docker-compose up -d
+
+# Or using Podman Compose
+podman-compose up -d
+```
+
+## Using Kind
+
 These instructions will get you going quickly with two plugins (azure and ssh).
 
 1. Install [KIND](https://kind.sigs.k8s.io/)

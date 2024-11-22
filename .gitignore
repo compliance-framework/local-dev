@@ -12,3 +12,6 @@ bin/**
 .env*
 
 DEMO.md
+
+# Goland / Jetbrains IDEs
+.idea/
