@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  configuration-service:
+    image: ghcr.io/compliance-framework/configuration-service:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - continuous-compliance
+    environment:
+      NATS_URI: nats://nats:4222
+      MONGO_URI: mongodb://mongo:27017
