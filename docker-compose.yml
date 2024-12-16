@@ -9,7 +9,7 @@ services:
       - "6222:6222"
       - "8222:8222"
     volumes:
-      - .nats-server.conf:/etc/nats/nats-server.conf
+      - ./nats-server.conf:/etc/nats/nats-server.conf
     networks:
       - continuous-compliance
 
@@ -26,6 +26,8 @@ services:
     image: ghcr.io/compliance-framework/configuration-service:latest
     ports:
       - "8080:8080"
+    networks:
+      - continuous-compliance
     environment:
       NATS_URI: nats://nats:4222
       MONGO_URI: mongodb://mongo:27017
