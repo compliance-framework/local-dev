@@ -1,0 +1,13 @@
+daemon: false
+verbosity: 2
+
+nats:
+  url: nats://nats:4222
+
+plugins:
+  local-ssh-check:
+    source: ghcr.io/compliance-framework/plugin-local-ssh:0.0.6
+    policies:
+      - bundle.tar.gz
+    assessment-plan-ids:
+      - 675c415e1bef9f6936adb9b8
