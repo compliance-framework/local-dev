@@ -24,6 +24,50 @@ Once the quickstart has been followed, there will be:
 
 # Quickstart
 
+## Using Docker Compose
+
+Docker Compose can be used to easily run the necessary components for the Compliance Framework.
+
+```shell
+# Running all services
+docker-compose up -d
+
+# Or using Podman Compose
+podman-compose up -d
+```
+
+### Running only data stores
+
+There are cases where some services need to be excluded as you will work on them locally. 
+
+For example, when working on the Configuration API locally, you need mongo and nats, but will run the API
+using `go run main.go`. 
+
+In such cases you can selectively run the services you need. 
+```shell
+# Run only the common external services 
+docker-compose -f compose/common.yml up -d
+
+# Or using Podman Compose 
+podman-compose -f compose/common.yml up -d
+```
+
+### Running agent daemons
+
+This repository also contains examples of running agents in the `demo-agents` folder. 
+
+You can include these when running locally to populate the API and Data stores.
+
+```shell
+# Running the local-ssh plugin 
+docker-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+
+# Or using Podman Compose
+podman-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+```
+
+## Using Kind
+
 These instructions will get you going quickly with two plugins (azure and ssh).
 
 1. Install [KIND](https://kind.sigs.k8s.io/)

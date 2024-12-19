@@ -1,0 +1,33 @@
+# !/bin/bash
+
+
+start_all() {
+    podman-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+}
+
+stop() {
+    podman-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml down
+}
+
+start_api() {
+    podman-compose -f compose/common.yml -f compose/api.yml up -d
+}
+
+start_agents() {
+    podman-compose -f compose/common.yml -f compose/agent-local-ssh.yml up -d
+}
+
+# Run is the default function. No need to call it's name.
+run() {
+    podman-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml $@
+}
+
+# Check if the function exists
+if declare -f "$1" > /dev/null
+then
+  # call arguments verbatim
+  "$@"
+else
+  # Run a command against all
+  run "$@"
+fi
