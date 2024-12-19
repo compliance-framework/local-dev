@@ -142,6 +142,51 @@ You may need to wait a minute or so for results to start coming in.
 
 `k9s` - starts a k9s window (assuming you have it installed)
 
+## Access the Mongodb
+
+1. Get a shell on the mongodb pod (eg by hitting 's' in k9s on the pod)
+
+2. Run `mongosh`
+
+3. Run `use cf` to select the Compliance Framework database
+
+4. Run queries, eg:
+
+`show tables`
+
+`db.plan.findOne()`
+
+`db.plan.find()`
+
+Observations in the last 10 minutes:
+
+```
+db.plan.aggregate([
+  {
+    $unwind: "$results"
+  },
+  {
+    $unwind: "$results.observations"
+  },
+  {
+    $match: {
+      "results.observations.collected": {
+        $gte: new Date(new Date() - 10 * 60 * 1000)
+      }
+    }
+  },
+  {
+    $project: {
+      "observation": "$results.observations"
+    }
+  }
+])
+```
+
+
+
+
+
 ## Quickstart Gotchas
 
 - There are known issues running MongoDB on non-AVX-supporting processors. In this event you will see this message in the mongodb-0 logs:
