@@ -26,16 +26,15 @@ check-cfctl:  # Check cfctl is available on PATH
 	which cfctl || ( echo cfctl not on PATH, download from https://github.com/compliance-framework/cfctl/releases && false )
 
 full-restart: full-destroy compose-restart   ## Tear down compose, destroy data and setup compose anew with fresh data
-full-destroy: compose-down delete-volumes    ## Tear down compose and destroy data
+full-destroy: compose-destroy ## Tear down compose and destroy data
 
-compose-restart: compose-down compose-up  ## Tear down local k8s environment and setup new one
-compose-destroy: clean-data compose-down  ## Tear down whole cluster and destroy data
+compose-restart: compose-down compose-up ## Tear down environment and setup new one. (Preserves Volumes)
 
-delete-volumes:   # removes persistent store data
-	@docker volume rm compose_mongo || true
+compose-destroy: ## Tear down environment and destroy data
+	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do destroy
 
-compose-down:  # Bring down compose
+compose-down: ## Bring down environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do stop
 
-compose-up:  # Bring up compose
+compose-up: ## Bring up environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_all
