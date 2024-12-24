@@ -10,6 +10,10 @@ stop() {
     ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml down
 }
 
+destroy() {
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml down -v
+}
+
 start_api() {
     ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml up -d
 }
