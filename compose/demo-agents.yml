@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  local-ubuntu-vuln-agent:
+    build: 
+      context: ../demo-agents/ubuntu-vuln
+    volumes:
+      - ../demo-agents/ubuntu-vuln/agent-config.yml:/config.yml
+      - ../demo-agents/ubuntu-vuln/entrypoint.sh:/entrypoint.sh
+    networks:
+      - continuous-compliance
+
   local-ssh-agent:
     build:
       # Needs to be relative to root path where docker-compose is run

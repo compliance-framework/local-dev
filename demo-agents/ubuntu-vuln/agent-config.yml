@@ -1,0 +1,13 @@
+daemon: false
+verbosity: 2
+
+nats:
+  url: nats://nats:4222
+
+plugins:
+  local-vulns-check:
+    source: ghcr.io/compliance-framework/plugin-os-ubuntu:latest
+    policies:
+      - ghcr.io/compliance-framework/plugin-os-ubuntu-policies:latest
+    assessment-plan-ids:
+      - 677bc8948afc05e379888c77

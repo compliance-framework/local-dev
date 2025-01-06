@@ -60,10 +60,10 @@ You can include these when running locally to populate the API and Data stores.
 
 ```shell
 # Running the local-ssh plugin 
-docker-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+docker-compose -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml up -d
 
 # Or using Podman Compose
-podman-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+podman-compose -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml up -d
 ```
 
 ## Using Kind
