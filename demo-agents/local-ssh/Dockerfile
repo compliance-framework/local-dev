@@ -3,7 +3,7 @@ FROM ubuntu
 RUN apt-get update && \
     apt-get install openssh-server golang-go git -y
 
-RUN git clone https://github.com/compliance-framework/agent.git
+RUN git clone --depth 1 --branch v0.0.4 https://github.com/compliance-framework/agent.git
 
 RUN cd agent && \
     go build -o concom main.go && \

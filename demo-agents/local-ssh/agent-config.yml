@@ -6,8 +6,8 @@ nats:
 
 plugins:
   local-ssh-check:
-    source: ghcr.io/compliance-framework/plugin-local-ssh:0.0.6
+    source: ghcr.io/compliance-framework/plugin-local-ssh:latest
     policies:
-      - bundle.tar.gz
+      - ghcr.io/compliance-framework/plugin-local-ssh-policies:latest
     assessment-plan-ids:
-      - 675c415e1bef9f6936adb9b8
+      - 677bae870e51b9953bb541f0
