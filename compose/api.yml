@@ -5,6 +5,8 @@ services:
     image: ghcr.io/compliance-framework/configuration-service:latest
     ports:
       - "8080:8080"
+    volumes:
+      - ./api.env:/.env
     networks:
       - continuous-compliance
     environment:

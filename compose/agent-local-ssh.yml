@@ -7,7 +7,28 @@ services:
       context: ../demo-agents/local-ssh
     volumes:
       - ../demo-agents/local-ssh/agent-config.yml:/config.yml
-      - ../demo-agents/local-ssh/temp/bundle.tar.gz:/bundle.tar.gz
+      - ../demo-agents/local-ssh/sshd.conf:/etc/ssh/sshd_config.d/sshd.conf
+      - ../demo-agents/local-ssh/entrypoint.sh:/entrypoint.sh
+    networks:
+      - continuous-compliance
+
+  local-ssh-agent2:
+    build:
+      # Needs to be relative to root path where docker-compose is run
+      context: ../demo-agents/local-ssh
+    volumes:
+      - ../demo-agents/local-ssh/agent-config.yml:/config.yml
+      - ../demo-agents/local-ssh/sshd.conf:/etc/ssh/sshd_config.d/sshd.conf
+      - ../demo-agents/local-ssh/entrypoint.sh:/entrypoint.sh
+    networks:
+      - continuous-compliance
+
+  local-ssh-agent3:
+    build:
+      # Needs to be relative to root path where docker-compose is run
+      context: ../demo-agents/local-ssh
+    volumes:
+      - ../demo-agents/local-ssh/agent-config.yml:/config.yml
       - ../demo-agents/local-ssh/sshd.conf:/etc/ssh/sshd_config.d/sshd.conf
       - ../demo-agents/local-ssh/entrypoint.sh:/entrypoint.sh
     networks:
