@@ -38,3 +38,12 @@ compose-down: ## Bring down environment
 
 compose-up: ## Bring up environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_all
+
+common-only-restart: compose-down  ## Bring up common services only
+	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_common
+
+api-only-restart: compose-down  ## Bring up common services and api only
+	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_api
+
+agents-only-restart: compose-down  ## Bring up common services and agents only
+	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_agents

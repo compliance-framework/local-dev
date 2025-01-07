@@ -1,6 +1,18 @@
-# !/bin/bash
+#!/bin/bash
 
 COMPOSE_COMMAND="${COMPOSE_COMMAND:-podman-compose}"
+
+start_common() {
+    ${COMPOSE_COMMAND} -f compose/common.yml up -d
+}
+
+start_api() {
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml up -d
+}
+
+start_agents() {
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/agent-local-ssh.yml up -d
+}
 
 start_all() {
     ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml up -d
@@ -14,17 +26,9 @@ destroy() {
     ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml down -v
 }
 
-start_api() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml up -d
-}
-
-start_agents() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/demo-agents.yml up -d
-}
-
-# Run is the default function. No need to call it's name.
+# Run is the default function. No need to call its name.
 run() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml $@
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml "$@"
 }
 
 # Check if the function exists
