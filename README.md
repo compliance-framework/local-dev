@@ -63,11 +63,8 @@ This repository also contains examples of running agents in the `demo-agents` fo
 You can include these when running locally to populate the API and Data stores.
 
 ```shell
-# Running the local-ssh plugin
-docker-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
-
-# Or using Podman Compose
-podman-compose -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+# Running the demo agent daemons plugin 
+make agents-only-restart
 ```
 
 ## Access the Mongodb

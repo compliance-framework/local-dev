@@ -15,20 +15,20 @@ start_agents() {
 }
 
 start_all() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml up -d
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml up -d
 }
 
 stop() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml down
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml down
 }
 
 destroy() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml down -v
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml down -v
 }
 
 # Run is the default function. No need to call its name.
 run() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/agent-local-ssh.yml "$@"
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml "$@"
 }
 
 # Check if the function exists
