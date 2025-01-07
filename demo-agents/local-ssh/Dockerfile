@@ -1,9 +1,13 @@
 FROM ubuntu
 
 RUN apt-get update && \
-    apt-get install openssh-server golang-go git -y
+    apt-get install wget openssh-server golang-go git -y
 
-RUN git clone --depth 1 --branch v0.0.4 https://github.com/compliance-framework/agent.git
+RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v0.0.4.tar.gz -O agent.tar.gz && \
+    tar -xzf agent.tar.gz && \
+    mv agent-0.0.4 agent && \
+    rm agent.tar.gz
+
 RUN cd agent && \
     go build -o concom main.go && \
     cd .. && \

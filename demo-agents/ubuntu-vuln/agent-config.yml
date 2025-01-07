@@ -10,4 +10,4 @@ plugins:
     policies:
       - ghcr.io/compliance-framework/plugin-os-ubuntu-policies:latest
     assessment-plan-ids:
-      - 677bc8948afc05e379888c77
+      - 677be6ff9ee0cc30867f8899

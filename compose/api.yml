@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   configuration-service:
     image: ghcr.io/compliance-framework/configuration-service:latest
