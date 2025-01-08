@@ -3,11 +3,11 @@
 COMPOSE_COMMAND="${COMPOSE_COMMAND:-podman-compose}"
 
 start_common() {
-    ${COMPOSE_COMMAND} -f compose/common.yml up -d
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/ui.yml up -d
 }
 
 start_api() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml up -d
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml up -d
 }
 
 start_agents() {
@@ -15,20 +15,20 @@ start_agents() {
 }
 
 start_all() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml up -d
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml up -d
 }
 
 stop() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml down
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml down
 }
 
 destroy() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml down -v
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml down -v
 }
 
 # Run is the default function. No need to call its name.
 run() {
-    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/demo-agents.yml "$@"
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml "$@"
 }
 
 # Check if the function exists
