@@ -1,6 +1,6 @@
 services:
   ui:
-    image: ghcr.io/compliance-framework/ui:stable
+    image: ghcr.io/compliance-framework/ui:1
     ports:
       - "8000:80"
     volumes:

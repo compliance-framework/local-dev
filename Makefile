@@ -39,6 +39,9 @@ compose-down: ## Bring down environment
 compose-up: ## Bring up environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_all
 
+compose-pull: ## Update all local images
+	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do pull
+
 common-only-restart: compose-down  ## Bring up common services only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_common
 

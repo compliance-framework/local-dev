@@ -26,6 +26,10 @@ destroy() {
     ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml down -v
 }
 
+pull() {
+    ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml pull
+}
+
 # Run is the default function. No need to call its name.
 run() {
     ${COMPOSE_COMMAND} -f compose/common.yml -f compose/api.yml -f compose/ui.yml -f compose/demo-agents.yml "$@"
