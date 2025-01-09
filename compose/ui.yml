@@ -1,0 +1,9 @@
+services:
+  ui:
+    image: ghcr.io/compliance-framework/ui:1
+    ports:
+      - "8000:80"
+    volumes:
+      - ./ui-config.json:/app/config.json
+    networks:
+      - continuous-compliance
