@@ -5,9 +5,10 @@ nats:
   url: nats://nats:4222
 
 plugins:
-  local-vulns-check:
+  ubuntu-vuln:
     source: ghcr.io/compliance-framework/plugin-os-ubuntu:latest
     policies:
       - ghcr.io/compliance-framework/plugin-os-ubuntu-policies:latest
-    assessment-plan-ids:
-      - 677be6ff9ee0cc30867f8899
+    labels:
+      type: ubuntu-vuln
+      group: public

@@ -1,42 +1,36 @@
 services:
-  local-ubuntu-vuln-agent:
+  worker-1:
     build: 
-      context: ../demo-agents/ubuntu-vuln
+      context: ../demo-agents/ubuntu
+    hostname: kube-prod-worker-1
     volumes:
-      - ../demo-agents/ubuntu-vuln/agent-config.yml:/config.yml
-      - ../demo-agents/ubuntu-vuln/entrypoint.sh:/entrypoint.sh
+      - ../demo-agents/versions/composite/config-1.yml:/config.yml
     networks:
       - continuous-compliance
 
-  local-ssh-agent:
+  worker-2:
     build:
-      # Needs to be relative to root path where docker-compose is run
-      context: ../demo-agents/local-ssh
+      context: ../demo-agents/ubuntu
+    hostname: kube-prod-worker-2
     volumes:
-      - ../demo-agents/local-ssh/agent-config.yml:/config.yml
-      - ../demo-agents/local-ssh/sshd.conf:/etc/ssh/sshd_config.d/sshd.conf
-      - ../demo-agents/local-ssh/entrypoint.sh:/entrypoint.sh
+      - ../demo-agents/versions/composite/config-2.yml:/config.yml
     networks:
       - continuous-compliance
 
-  local-ssh-agent2:
+  worker-3:
     build:
-      # Needs to be relative to root path where docker-compose is run
-      context: ../demo-agents/local-ssh
+      context: ../demo-agents/ubuntu
+    hostname: kube-prod-worker-3
     volumes:
-      - ../demo-agents/local-ssh/agent-config.yml:/config.yml
-      - ../demo-agents/local-ssh/sshd.conf:/etc/ssh/sshd_config.d/sshd.conf
-      - ../demo-agents/local-ssh/entrypoint.sh:/entrypoint.sh
+      - ../demo-agents/versions/composite/config-3.yml:/config.yml
     networks:
       - continuous-compliance
 
-  local-ssh-agent3:
+  worker-4:
     build:
-      # Needs to be relative to root path where docker-compose is run
-      context: ../demo-agents/local-ssh
+      context: ../demo-agents/ubuntu
+    hostname: kube-prod-worker-4
     volumes:
-      - ../demo-agents/local-ssh/agent-config.yml:/config.yml
-      - ../demo-agents/local-ssh/sshd.conf:/etc/ssh/sshd_config.d/sshd.conf
-      - ../demo-agents/local-ssh/entrypoint.sh:/entrypoint.sh
+      - ../demo-agents/versions/composite/config-4.yml:/config.yml
     networks:
       - continuous-compliance

@@ -1,0 +1,24 @@
+daemon: false
+verbosity: 2
+
+nats:
+  url: nats://nats:4222
+
+plugins:
+  ssh:
+    source: ghcr.io/compliance-framework/plugin-local-ssh:latest
+    policies:
+      - ghcr.io/compliance-framework/plugin-local-ssh-policies:latest
+    labels:
+      type: ssh
+      group: public
+      owner: sales-api
+
+  ubuntu-vuln:
+    source: ghcr.io/compliance-framework/plugin-os-ubuntu:latest
+    policies:
+      - ghcr.io/compliance-framework/plugin-os-ubuntu-policies:latest
+    labels:
+      type: ubuntu-vuln
+      group: public
+      owner: sales-api
