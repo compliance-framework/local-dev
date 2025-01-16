@@ -22,3 +22,14 @@ plugins:
       type: ubuntu-vuln
       group: public
       owner: auth-api
+
+  ubuntu-vuln:
+    source: ghcr.io/compliance-framework/plugin-apt-versions:latest
+    policies:
+      - ghcr.io/compliance-framework/plugin-apt-versions-policies:latest
+    labels:
+      type: apt-versions
+      group: public
+      owner: auth-api
+
+
