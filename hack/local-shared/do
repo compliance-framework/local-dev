@@ -12,7 +12,7 @@ start_api() {
 }
 
 start_agents() {
-    ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/agent-local-ssh.yml up -d
+    ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/demo-agents.yml up -d
 }
 
 start_all() {
