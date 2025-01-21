@@ -31,10 +31,15 @@ pull() {
     ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml -f ${CWD}/compose/demo-agents.yml pull
 }
 
+build() {
+    ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml -f ${CWD}/compose/demo-agents.yml build
+}
+
 # Run is the default function. No need to call its name.
 run() {
     ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml -f ${CWD}/compose/demo-agents.yml "$@"
 }
+
 
 # Check if the function exists
 if declare -f "$1" > /dev/null

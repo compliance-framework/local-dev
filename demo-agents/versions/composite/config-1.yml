@@ -26,8 +26,8 @@ plugins:
   apt-versions:
     source: ghcr.io/compliance-framework/plugin-apt-versions:latest
     policies:
-      - ghcr.io/compliance-framework/plugin-apt-versions-policies:latest
+      - ghcr.io/compliance-framework/plugin-apt-versions:latest
     labels:
-      type: apt-versions
+      type: ssh
       group: public
       owner: auth-api

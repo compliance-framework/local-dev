@@ -36,7 +36,7 @@ compose-destroy: ## Tear down environment and destroy data
 compose-down: ## Bring down environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do stop
 
-compose-up: ## Bring up environment
+compose-up: build ## Bring up environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_all
 
 compose-pull: ## Update all local images
@@ -50,3 +50,6 @@ api-only-restart: compose-down  ## Bring up common services and api only
 
 agents-only-restart: compose-down  ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_agents
+
+build:  ## Bring up common services and agents only
+	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
