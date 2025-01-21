@@ -1,6 +1,6 @@
 services:
   worker-1:
-    build: 
+    build:
       context: ../demo-agents/ubuntu
     image: demo-agent:latest
     hostname: kube-prod-worker-1
@@ -36,5 +36,14 @@ services:
     hostname: kube-prod-worker-4
     volumes:
       - ../demo-agents/versions/composite/config-4.yml:/config.yml
+    networks:
+      - continuous-compliance
+
+  server-1:
+    build:
+      context: ../demo-agents/apt-versions
+    hostname: server-ubuntu-2018-1
+    volumes:
+      - ../demo-agents/versions/apt-versions/config-1.yml:/config.yml
     networks:
       - continuous-compliance
