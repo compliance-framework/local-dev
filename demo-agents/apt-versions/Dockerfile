@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get install wget update-manager-core -y
+    apt-get install wget update-manager-core vim -y
 
 RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v0.0.11.tar.gz -O agent.tar.gz && \
     tar -xzf agent.tar.gz && \
