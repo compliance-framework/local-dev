@@ -14,20 +14,11 @@ plugins:
       group: public
       owner: auth-api
 
-  ubuntu-vuln:
-    source: ghcr.io/compliance-framework/plugin-os-ubuntu:latest
-    policies:
-      - ghcr.io/compliance-framework/plugin-os-ubuntu-policies:latest
-    labels:
-      type: ubuntu-vuln
-      group: public
-      owner: auth-api
-
   apt-versions:
     source: ghcr.io/compliance-framework/plugin-apt-versions:latest
     policies:
-      - ghcr.io/compliance-framework/plugin-apt-versions:latest
+      - ghcr.io/compliance-framework/plugin-apt-versions-policies:latest
     labels:
-      type: ssh
+      type: apt-versions
       group: public
       owner: auth-api
