@@ -1,6 +1,6 @@
 services:
   configuration-service:
-    image: ghcr.io/compliance-framework/configuration-service:0.0.1
+    image: ghcr.io/compliance-framework/configuration-service:0.0.2
     ports:
       - "8080:8080"
     volumes:
