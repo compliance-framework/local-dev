@@ -1,8 +1,8 @@
 daemon: false
 verbosity: 2
 
-nats:
-  url: nats://nats:4222
+api:
+  url: http://configuration-service:8080
 
 plugins:
   apt-versions:

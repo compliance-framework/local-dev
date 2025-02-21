@@ -1,6 +1,6 @@
 services:
   configuration-service:
-    image: ghcr.io/compliance-framework/configuration-service:0.0.2
+    image: ghcr.io/compliance-framework/configuration-service:0.0.4
     ports:
       - "8080:8080"
     volumes:
@@ -8,5 +8,4 @@ services:
     networks:
       - continuous-compliance
     environment:
-      NATS_URI: nats://nats:4222
       MONGO_URI: mongodb://mongo:27017

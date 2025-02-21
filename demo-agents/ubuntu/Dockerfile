@@ -3,9 +3,9 @@ FROM ubuntu
 RUN apt-get update && \
     apt-get install wget openssh-server golang-go git vim -y
 
-RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v0.0.11.tar.gz -O agent.tar.gz && \
+RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v0.0.12.tar.gz -O agent.tar.gz && \
     tar -xzf agent.tar.gz && \
-    mv agent-0.0.11 agent && \
+    mv agent-0.0.12 agent && \
     rm agent.tar.gz
 
 RUN cd agent && \
