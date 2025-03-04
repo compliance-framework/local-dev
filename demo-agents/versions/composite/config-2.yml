@@ -18,6 +18,5 @@ plugins:
     policies:
       - ghcr.io/compliance-framework/plugin-apt-versions-policies:latest
     labels:
-      type: apt-versions
       group: private
       owner: auth-api
