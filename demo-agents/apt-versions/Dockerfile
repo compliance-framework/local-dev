@@ -1,12 +1,14 @@
 FROM ubuntu:18.04
 
+ARG AGENT_VERSION="0.0.13"
+
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     apt-get install wget update-manager-core vim -y
 
-RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v0.0.12.tar.gz -O agent.tar.gz && \
+RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v${AGENT_VERSION}.tar.gz -O agent.tar.gz && \
     tar -xzf agent.tar.gz && \
-    mv agent-0.0.12 agent && \
+    mv agent-${AGENT_VERSION} agent && \
     rm agent.tar.gz
 
 # Download and install the latest Go (replace URL with whichever version you want)

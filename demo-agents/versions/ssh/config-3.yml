@@ -6,10 +6,9 @@ api:
 
 plugins:
   ssh:
-    source: ghcr.io/compliance-framework/plugin-local-ssh:latest
+    source: ghcr.io/compliance-framework/plugin-local-ssh:v0.0.13
     policies:
       - ghcr.io/compliance-framework/plugin-local-ssh-policies:latest
     labels:
-      type: ssh
       group: public
       owner: sales-api

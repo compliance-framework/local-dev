@@ -1,11 +1,13 @@
 FROM ubuntu
 
+ARG AGENT_VERSION="0.0.13"
+
 RUN apt-get update && \
     apt-get install wget openssh-server golang-go git vim -y
 
-RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v0.0.12.tar.gz -O agent.tar.gz && \
+RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v${AGENT_VERSION}.tar.gz -O agent.tar.gz && \
     tar -xzf agent.tar.gz && \
-    mv agent-0.0.12 agent && \
+    mv agent-${AGENT_VERSION} agent && \
     rm agent.tar.gz
 
 RUN cd agent && \
