@@ -53,7 +53,7 @@ services:
     build:
       context: ../demo-agents/ubuntu
       args:
-        AGENT_VERSION: 0.0.13
+        AGENT_VERSION: 0.0.15
     image: demo-agent:latest
     hostname: kube-prod-worker-5
     volumes:
