@@ -46,7 +46,9 @@ services:
       - ../demo-agents/versions/composite/config-4.yml:/config.yml
     networks:
       - continuous-compliance
-  
+
+  # This worker requires AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY & AWS_SESSION_TOKEN 
+  # env vars set in terminal session
   worker-aws:
     build:
       context: ../demo-agents/ubuntu
