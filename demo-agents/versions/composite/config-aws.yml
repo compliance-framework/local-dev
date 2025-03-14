@@ -1,0 +1,28 @@
+daemon: false
+verbosity: 2
+
+nats:
+  url: nats://nats:4222
+
+plugins:
+  aws_ec2:
+    source: ghcr.io/compliance-framework/plugin-aws-ec2:v0.0.1
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-ec2-policies:latest
+    labels:
+      type: aws
+      group: public
+  aws_aurora_psql:
+    source: ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql:v0.0.1
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql-policies:latest
+    labels:
+      type: aws
+      group: public
+  aws_networking:
+    source: ghcr.io/compliance-framework/plugin-aws-networking-security:v0.0.1
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-networking-security-policies:latest
+    labels:
+      type: aws
+      group: public
