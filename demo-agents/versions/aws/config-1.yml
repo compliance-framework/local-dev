@@ -1,0 +1,15 @@
+daemon: false
+verbosity: 2
+
+api:
+  url: http://configuration-service:8080
+
+plugins:
+  aws-networking-security:
+    source: ghcr.io/compliance-framework/plugin-aws-networking-security:latest
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-networking-security-policies:latest
+    labels:
+      type: aws-networking-security
+      group: public
+      owner: auth-api
