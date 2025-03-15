@@ -26,7 +26,20 @@ check-cfctl:  # Check cfctl is available on PATH
 	which cfctl || ( echo cfctl not on PATH, download from https://github.com/compliance-framework/cfctl/releases && false )
 
 full-restart: full-destroy compose-restart   ## Tear down compose, destroy data and setup compose anew with fresh data
-full-destroy: compose-destroy ## Tear down compose and destroy data
+full-destroy: compose-destroy update-images clear-images ## Tear down compose and destroy data
+
+update-images:
+	@echo Updating latest public images...
+	@docker pull golang
+	@docker pull mongo
+	@echo ...done
+
+clear-images:
+	@echo Removing images...
+	@docker rmi demo-agent > /dev/null 2>&1 || true
+	@docker rmi compose-server-1 > /dev/null 2>&1 || true
+	@docker rmi compose-aws-client-1 > /dev/null 2>&1 || true
+	@echo ...done
 
 compose-restart: compose-down compose-up ## Tear down environment and setup new one. (Preserves Volumes)
 
