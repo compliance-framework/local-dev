@@ -14,8 +14,6 @@ These are the components that it sets-up:
 
 - MongoDB: The persistent data store
 
-- NATS: The message bus
-
 Once the quickstart has been followed, there will be:
 
 - A running instance of CF using `kind` and scanning on an Azure subscription (this must be setup externally)
@@ -46,7 +44,7 @@ make compose-restart
 
 There are cases where some services need to be excluded as you will work on them locally.
 
-For example, when working on the Configuration API locally, you need mongo and nats, but will run the API
+For example, when working on the Configuration API locally, you need mongo but will run the API
 using `go run main.go`.
 
 In such cases you can selectively run the services you need, after starting up the common ones.
@@ -63,7 +61,7 @@ This repository also contains examples of running agents in the `demo-agents` fo
 You can include these when running locally to populate the API and Data stores.
 
 ```shell
-# Running the demo agent daemons plugin 
+# Running the demo agent daemons plugin
 make agents-only-restart
 ```
 
