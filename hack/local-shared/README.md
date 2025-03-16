@@ -3,7 +3,7 @@
 This script makes it easier for Chris to work with local compose files. Use it to your hearts content.
 
 ```shell
-# Run all of the services. Nats + Mongo + API + Local SSH Agent
+# Run all of the services. Mongo + API + Local SSH Agent
 ./hack/local-chris/do start_all
 
 # Start API. No agents. Useful when developing agents.

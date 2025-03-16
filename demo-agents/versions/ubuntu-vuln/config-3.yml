@@ -1,9 +1,6 @@
 daemon: false
 verbosity: 2
 
-nats:
-  url: nats://nats:4222
-
 plugins:
   ubuntu-vuln:
     source: ghcr.io/compliance-framework/plugin-os-ubuntu:latest
