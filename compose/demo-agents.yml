@@ -66,5 +66,7 @@ services:
     hostname: aws-client-1
     volumes:
       - ../demo-agents/versions/aws/config-1.yml:/config.yml
+    env_file:
+      - demo-agents.env
     networks:
       - continuous-compliance
