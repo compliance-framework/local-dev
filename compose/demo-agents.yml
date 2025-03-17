@@ -3,8 +3,8 @@ services:
     build:
       context: ../demo-agents/ubuntu
       args:
-        AGENT_VERSION: 0.0.13
-    image: demo-agent:latest
+        AGENT_VERSION: 0.0.15
+    image: demo-agent:0.0.15
     hostname: kube-prod-worker-1
     volumes:
       - ../demo-agents/versions/composite/config-1.yml:/config.yml
@@ -15,8 +15,8 @@ services:
     build:
       context: ../demo-agents/ubuntu
       args:
-        AGENT_VERSION: 0.0.13
-    image: demo-agent:latest
+        AGENT_VERSION: 0.0.15
+    image: demo-agent:0.0.15
     hostname: kube-prod-worker-2
     volumes:
       - ../demo-agents/versions/composite/config-2.yml:/config.yml
@@ -27,8 +27,8 @@ services:
     build:
       context: ../demo-agents/ubuntu
       args:
-        AGENT_VERSION: 0.0.13
-    image: demo-agent:latest
+        AGENT_VERSION: 0.0.15
+    image: demo-agent:0.0.15
     hostname: kube-prod-worker-3
     volumes:
       - ../demo-agents/versions/composite/config-3.yml:/config.yml
@@ -39,8 +39,8 @@ services:
     build:
       context: ../demo-agents/ubuntu
       args:
-        AGENT_VERSION: 0.0.13
-    image: demo-agent:latest
+        AGENT_VERSION: 0.0.15
+    image: demo-agent:0.0.15
     hostname: kube-prod-worker-4
     volumes:
       - ../demo-agents/versions/composite/config-4.yml:/config.yml

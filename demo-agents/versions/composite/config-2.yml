@@ -6,7 +6,7 @@ api:
 
 plugins:
   ssh:
-    source: ghcr.io/compliance-framework/plugin-local-ssh:v0.0.13
+    source: ghcr.io/compliance-framework/plugin-local-ssh:v0.0.14
     policies:
       - ghcr.io/compliance-framework/plugin-local-ssh-policies:latest
     labels:
@@ -14,7 +14,7 @@ plugins:
       owner: auth-api
 
   apt-versions:
-    source: ghcr.io/compliance-framework/plugin-apt-versions:v0.2.6
+    source: ghcr.io/compliance-framework/plugin-apt-versions:v0.2.7
     policies:
       - ghcr.io/compliance-framework/plugin-apt-versions-policies:latest
     labels:
