@@ -53,3 +53,17 @@ agents-only-restart: compose-down  ## Bring up common services and agents only
 
 build:  ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
+
+## TF
+aws-tf:
+	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
+		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
+		exit 1; \
+	fi
+	cd ./terraform && terraform init && terraform plan -out=tfplan; \
+	if [ $$? -ne 0 ]; then \
+		echo "Terraform plan failed. Exiting."; \
+		exit 1; \
+	fi
+	cd ./terraform && terraform apply -auto-approve tfplan
+

@@ -3,24 +3,36 @@ provider "aws" {
 }
 
 # 🔹 VPC Setup
-resource "aws_vpc" "main" {
+resource "aws_vpc" "ccf_demo_vpc" {
   cidr_block = "10.0.0.0/16"
+
+  tags = {
+    Name = "CCF-demo-VPC"
+  }
 }
 
 resource "aws_subnet" "public" {
-  vpc_id            = aws_vpc.main.id
+  vpc_id            = aws_vpc.ccf_demo_vpc.id
   cidr_block        = "10.0.1.0/24"
   map_public_ip_on_launch = true
+
+  tags = {
+    Name = "CCF-demo-Public-Subnet"
+  }
 }
 
 resource "aws_subnet" "private" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
+  vpc_id     = aws_vpc.ccf_demo_vpc.id
+  cidr_block = "10.0.2.0/24"
+
+  tags = {
+    Name = "CCF-demo-Private-Subnet"
+  }
 }
 
 # 🔹 Security Groups
 resource "aws_security_group" "bastion_sg" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.ccf_demo_vpc.id
 
   ingress {
     from_port   = 22
@@ -28,10 +40,14 @@ resource "aws_security_group" "bastion_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "CCF-demo-Bastion-SG"
+  }
 }
 
 resource "aws_security_group" "app_sg" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.ccf_demo_vpc.id
 
   ingress {
     from_port   = 80
@@ -39,16 +55,24 @@ resource "aws_security_group" "app_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "CCF-demo-App-SG"
+  }
 }
 
 resource "aws_security_group" "db_sg" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.ccf_demo_vpc.id
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
     security_groups = [aws_security_group.app_sg.id]
+  }
+
+  tags = {
+    Name = "CCF-demo-DB-SG"
   }
 }
 
@@ -58,6 +82,10 @@ resource "aws_instance" "bastion" {
   instance_type   = "t2.micro"
   subnet_id       = aws_subnet.public.id
   security_groups = [aws_security_group.bastion_sg.name]
+
+  tags = {
+    Name = "CCF-demo-Bastion"
+  }
 }
 
 resource "aws_instance" "app" {
@@ -65,6 +93,10 @@ resource "aws_instance" "app" {
   instance_type   = "t2.micro"
   subnet_id       = aws_subnet.private.id
   security_groups = [aws_security_group.app_sg.name]
+
+  tags = {
+    Name = "CCF-demo-App"
+  }
 }
 
 # 🔹 Generate a Secure Random Password
@@ -76,14 +108,22 @@ resource "random_password" "db_master_password" {
 
 # 🔹 Create a KMS Key for Encryption
 resource "aws_kms_key" "db_key" {
-  description             = "KMS key for encrypting RDS password"
+  description             = "CCF-demo KMS key for encrypting RDS password"
   deletion_window_in_days = 10
+
+  tags = {
+    Name = "CCF-demo-KMS-Key"
+  }
 }
 
 # 🔹 Store the Password in Secrets Manager
 resource "aws_secretsmanager_secret" "rds_password" {
-  name       = "rds-master-password"
+  name       = "ccf-demo-rds-master-password"
   kms_key_id = aws_kms_key.db_key.arn
+
+  tags = {
+    Name = "CCF-demo-RDS-Secret"
+  }
 }
 
 resource "aws_secretsmanager_secret_version" "rds_password_value" {
@@ -98,12 +138,16 @@ data "aws_secretsmanager_secret_version" "db_password" {
 
 # 🔹 RDS Aurora PostgreSQL Cluster
 resource "aws_rds_cluster" "aurora" {
-  cluster_identifier   = "aurora-cluster"
-  engine              = "aurora-postgresql"
-  master_username     = "admin"
-  master_password     = data.aws_secretsmanager_secret_version.db_password.secret_string
-  storage_encrypted   = true
-  kms_key_id          = aws_kms_key.db_key.arn
-  skip_final_snapshot = true
+  cluster_identifier     = "ccf-demo-aurora-cluster"
+  engine                = "aurora-postgresql"
+  master_username       = "admin"
+  master_password       = data.aws_secretsmanager_secret_version.db_password.secret_string
+  storage_encrypted     = true
+  kms_key_id            = aws_kms_key.db_key.arn
+  skip_final_snapshot   = true
   vpc_security_group_ids = [aws_security_group.db_sg.id]
+
+  tags = {
+    Name = "CCF-demo-RDS-Cluster"
+  }
 }
