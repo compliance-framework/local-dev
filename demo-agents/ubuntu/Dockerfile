@@ -1,6 +1,6 @@
 FROM ubuntu
 
-ARG AGENT_VERSION="0.0.13"
+ARG AGENT_VERSION="0.0.15"
 
 RUN apt-get update && \
     apt-get install wget openssh-server golang-go git vim -y

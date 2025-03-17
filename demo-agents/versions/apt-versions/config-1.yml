@@ -6,7 +6,7 @@ api:
 
 plugins:
   apt-versions:
-    source: ghcr.io/compliance-framework/plugin-apt-versions:v0.2.6
+    source: ghcr.io/compliance-framework/plugin-apt-versions:v0.2.7
     policies:
       - ghcr.io/compliance-framework/plugin-apt-versions-policies:latest
     labels:

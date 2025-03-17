@@ -1,0 +1,29 @@
+daemon: false
+verbosity: 2
+
+api:
+  url: http://configuration-service:8080
+
+plugins:
+  aws_ec2:
+    source: ghcr.io/compliance-framework/plugin-aws-ec2:v0.0.2
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-ec2-policies:latest
+    labels:
+      type: aws
+      service: ec2
+  aws_aurora_psql:
+    source: ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql:v0.0.2
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql-policies:latest
+    labels:
+      type: aws
+      service: RDS
+      engine: aurora-psql
+  aws_networking:
+    source: ghcr.io/compliance-framework/plugin-aws-networking-security:v0.0.2
+    policies:
+      - ghcr.io/compliance-framework/plugin-aws-networking-security-policies:latest
+    labels:
+      type: aws
+      service: security-group
