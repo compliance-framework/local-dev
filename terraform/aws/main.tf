@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 locals {
-  vpc_cidr = "10.0.0.0/16"  # 10.0.0.0 - 10.0.255.255
+  vpc_cidr = "10.0.0.0/16" # 10.0.0.0 - 10.0.255.255
   availability_zones = [
     "euw2-az1",
     "euw2-az2",
@@ -40,9 +40,9 @@ Spare: 10.0.32.0/20 # Capable of supporting a bunch more subnets.
 
 
 resource "aws_subnet" "public-az-1" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 0)
-  availability_zone = "eu-west-2a"
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 0)
+  availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = true
 
   tags = {
@@ -51,9 +51,9 @@ resource "aws_subnet" "public-az-1" {
 }
 
 resource "aws_subnet" "public-az-2" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 1)
-  availability_zone = "eu-west-2b"
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 1)
+  availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = true
 
   tags = {
@@ -62,9 +62,9 @@ resource "aws_subnet" "public-az-2" {
 }
 
 resource "aws_subnet" "public-az-3" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 2)
-  availability_zone = "eu-west-2c"
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 2)
+  availability_zone       = "eu-west-2c"
   map_public_ip_on_launch = true
 
   tags = {
@@ -73,8 +73,8 @@ resource "aws_subnet" "public-az-3" {
 }
 
 resource "aws_subnet" "public-spare" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 3)
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 3)
   map_public_ip_on_launch = true
 
   tags = {
@@ -83,9 +83,9 @@ resource "aws_subnet" "public-spare" {
 }
 
 resource "aws_subnet" "private-az-1" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 4)
-  availability_zone = "eu-west-2a"
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 4)
+  availability_zone       = "eu-west-2a"
   map_public_ip_on_launch = false
 
   tags = {
@@ -94,9 +94,9 @@ resource "aws_subnet" "private-az-1" {
 }
 
 resource "aws_subnet" "private-az-2" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 5)
-  availability_zone = "eu-west-2b"
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 5)
+  availability_zone       = "eu-west-2b"
   map_public_ip_on_launch = false
 
   tags = {
@@ -105,9 +105,9 @@ resource "aws_subnet" "private-az-2" {
 }
 
 resource "aws_subnet" "private-az-3" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 6)
-  availability_zone = "eu-west-2c"
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 6)
+  availability_zone       = "eu-west-2c"
   map_public_ip_on_launch = false
 
   tags = {
@@ -116,8 +116,8 @@ resource "aws_subnet" "private-az-3" {
 }
 
 resource "aws_subnet" "private-spare" {
-  vpc_id            = aws_vpc.ccf_demo_vpc.id
-  cidr_block        = cidrsubnet(local.vpc_cidr, 6, 7)
+  vpc_id                  = aws_vpc.ccf_demo_vpc.id
+  cidr_block              = cidrsubnet(local.vpc_cidr, 6, 7)
   map_public_ip_on_launch = false
 
   tags = {
@@ -232,7 +232,7 @@ data "aws_secretsmanager_secret_version" "db_password" {
 }
 
 resource "aws_db_subnet_group" "database" {
-  name       = "database"
+  name = "database"
   subnet_ids = [
     aws_subnet.private-az-1.id,
     aws_subnet.private-az-2.id,
@@ -248,14 +248,14 @@ resource "aws_db_subnet_group" "database" {
 # 🔹 RDS Aurora PostgreSQL Cluster
 resource "aws_rds_cluster" "aurora" {
   cluster_identifier     = "ccf-demo-aurora-cluster"
-  engine                = "aurora-postgresql"
-  master_username       = "administrator"
-  master_password       = data.aws_secretsmanager_secret_version.db_password.secret_string
-  storage_encrypted     = true
-  kms_key_id            = aws_kms_key.db_key.arn
-  skip_final_snapshot   = true
+  engine                 = "aurora-postgresql"
+  master_username        = "administrator"
+  master_password        = data.aws_secretsmanager_secret_version.db_password.secret_string
+  storage_encrypted      = true
+  kms_key_id             = aws_kms_key.db_key.arn
+  skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.db_sg.id]
-  db_subnet_group_name = aws_db_subnet_group.database.name
+  db_subnet_group_name   = aws_db_subnet_group.database.name
 
   tags = {
     Name = "CCF-demo-RDS-Cluster"
