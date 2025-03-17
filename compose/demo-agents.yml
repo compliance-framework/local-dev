@@ -57,7 +57,7 @@ services:
     image: demo-agent:latest
     hostname: kube-prod-worker-5
     volumes:
-      - ../demo-agents/versions/composite/config-aws.yml:/config.yml
+      - ../demo-agents/versions/aws/config.yml:/config.yml
     networks:
       - continuous-compliance
 
