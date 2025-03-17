@@ -6,7 +6,7 @@ api:
 
 plugins:
   aws_ec2:
-    source: ghcr.io/compliance-framework/plugin-aws-ec2:v0.0.1
+    source: ghcr.io/compliance-framework/plugin-aws-ec2:v0.0.2
     policies:
       - ghcr.io/compliance-framework/plugin-aws-ec2-policies:latest
     labels:
@@ -21,7 +21,7 @@ plugins:
 #      service: RDS
 #      engine: aurora-psql
   aws_networking:
-    source: ghcr.io/compliance-framework/plugin-aws-networking-security:v0.0.1
+    source: ghcr.io/compliance-framework/plugin-aws-networking-security:v0.0.2
     policies:
       - ghcr.io/compliance-framework/plugin-aws-networking-security-policies:latest
     labels:
