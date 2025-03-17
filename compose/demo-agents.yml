@@ -54,8 +54,8 @@ services:
       context: ../demo-agents/ubuntu
       args:
         AGENT_VERSION: 0.0.15
-    image: demo-agent:latest
-    hostname: kube-prod-worker-5
+    image: demo-agent:0.0.15
+    hostname: aws-worker-1
     volumes:
       - ../demo-agents/versions/aws/config.yml:/config.yml
     networks:

@@ -1,9 +1,6 @@
 daemon: false
 verbosity: 2
 
-nats:
-  url: nats://nats:4222
-
 plugins:
   aws_ec2:
     source: ghcr.io/compliance-framework/plugin-aws-ec2:v0.0.1
