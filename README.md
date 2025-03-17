@@ -24,6 +24,12 @@ Once the quickstart has been followed, there will be:
 
 # Quickstart
 
+## Set environment values
+
+First step, is to set the environment values for the pieces you'll use. 
+
+Copy the .env.example file to a .env file and fill out the field you are interested in. 
+
 ## Using Makefile
 
 First, specify your compose command:

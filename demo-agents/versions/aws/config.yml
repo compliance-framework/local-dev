@@ -12,14 +12,14 @@ plugins:
     labels:
       type: aws
       service: ec2
-  aws_aurora_psql:
-    source: ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql:v0.0.1
-    policies:
-      - ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql-policies:latest
-    labels:
-      type: aws
-      service: RDS
-      engine: aurora-psql
+#  aws_aurora_psql:
+#    source: ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql:v0.0.1
+#    policies:
+#      - ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql-policies:latest
+#    labels:
+#      type: aws
+#      service: RDS
+#      engine: aurora-psql
   aws_networking:
     source: ghcr.io/compliance-framework/plugin-aws-networking-security:v0.0.1
     policies:

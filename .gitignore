@@ -9,7 +9,8 @@
 *.dylib
 bin/**
 
-.env*
+.env
+.envrc
 
 DEMO.md
 
