@@ -60,10 +60,10 @@ aws-tf:
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
 		exit 1; \
 	fi
-	cd ./terraform && terraform init && terraform plan -out=tfplan; \
+	pushd ./terraform/aws && terraform init && terraform plan -out=tfplan; \
 	if [ $$? -ne 0 ]; then \
 		echo "Terraform plan failed. Exiting."; \
 		exit 1; \
 	fi
-	cd ./terraform && terraform apply -auto-approve tfplan
+	pushd ./terraform/aws && terraform apply -auto-approve tfplan
 
