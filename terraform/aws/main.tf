@@ -211,26 +211,6 @@ resource "aws_kms_key" "db_key" {
   }
 }
 
-# 🔹 Store the Password in Secrets Manager
-resource "aws_secretsmanager_secret" "rds_password" {
-  name       = "ccf-demo-rds-master-pass"
-  kms_key_id = aws_kms_key.db_key.arn
-
-  tags = {
-    Name = "CCF-demo-RDS-Master-Pass"
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "rds_password_value" {
-  secret_id     = aws_secretsmanager_secret.rds_password.id
-  secret_string = random_password.db_master_password.result
-}
-
-# 🔹 Retrieve the Password Securely
-data "aws_secretsmanager_secret_version" "db_password" {
-  secret_id = aws_secretsmanager_secret.rds_password.id
-}
-
 resource "aws_db_subnet_group" "database" {
   name = "database"
   subnet_ids = [
@@ -250,7 +230,7 @@ resource "aws_rds_cluster" "aurora" {
   cluster_identifier     = "ccf-demo-aurora-cluster"
   engine                 = "aurora-postgresql"
   master_username        = "administrator"
-  master_password        = data.aws_secretsmanager_secret_version.db_password.secret_string
+  master_password        = random_password.db_master_password.result
   storage_encrypted      = true
   kms_key_id             = aws_kms_key.db_key.arn
   skip_final_snapshot    = true
