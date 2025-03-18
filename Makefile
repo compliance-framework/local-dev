@@ -25,8 +25,9 @@ COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 check-cfctl:  # Check cfctl is available on PATH
 	which cfctl || ( echo cfctl not on PATH, download from https://github.com/compliance-framework/cfctl/releases && false )
 
-full-restart: full-destroy compose-restart   ## Tear down compose, destroy data and setup compose anew with fresh data
-full-destroy: compose-destroy ## Tear down compose and destroy data
+demo-restart: demo-destroy demo-up   ## Tear down compose, destroy data and setup compose anew with fresh data
+demo-destroy: compose-destroy ## Tear down compose and destroy data
+demo-up: aws-tf compose-up  ## Start up demo
 
 compose-restart: compose-down compose-up ## Tear down environment and setup new one. (Preserves Volumes)
 
@@ -55,15 +56,22 @@ build:  ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
 
 ## TF
-aws-tf:
+aws-tf:   ## Set up Terraform for aws
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
 		exit 1; \
 	fi
-	pushd ./terraform/aws && terraform init && terraform plan -out=tfplan; \
+	pushd ./terraform/aws && terraform init; \
+	if [ $$? -ne 0 ]; then \
+		echo "Terraform init failed. Exiting."; \
+		exit 1; \
+	fi
+	pushd ./terraform/aws && TF_LOG=DEBUG terraform plan -out tfplan; \
 	if [ $$? -ne 0 ]; then \
 		echo "Terraform plan failed. Exiting."; \
 		exit 1; \
 	fi
 	pushd ./terraform/aws && terraform apply -auto-approve tfplan
 
+print-env:  ## Prints environment (for debug)
+	env
