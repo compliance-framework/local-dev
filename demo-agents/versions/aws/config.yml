@@ -13,7 +13,7 @@ plugins:
       type: aws
       service: ec2
   aws_aurora_psql:
-    source: ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql:v0.0.3
+    source: ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql:v0.0.4
     policies:
       - ghcr.io/compliance-framework/plugin-aws-rds-aurora-psql-policies:latest
     labels:
