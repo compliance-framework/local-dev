@@ -88,15 +88,15 @@ aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600
 6. Copy credentials to `.env` in repository root folder, eg
 
 ```
-export AWS_REGION=us-east-1
-export AWS_ACCESS_KEY_ID=A[...]QO
-export AWS_SECRET_ACCESS_KEY=pzmg0QgN[....]BH2PjbnX
-export AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEPH//////////wEaCXVzLWVhc3QtMSJIMEYCIQC7tQU6MBMuUJalJXceh667e90Mzc0FVgf0pcxuNu6xSQIhANB5yC3xipkhp7xjgmc61yjcEef9GsYIOlHqdyT7BHlhKusBCEoQBBoMNjg0MTU3NzIyMDExIgyC+mYsErXpVqHoKjUqyAEleBoA95Er5yIRczd47Hs67bTmTjCSXkdRh4wQWnWkuVN+F0j2tPCcsx3mtuLFjWFkGPJeo9+QkgqeTNBLfsxHCAZYRVnjN7EM0HXu6BiN3g3zbuTkOIkZAGov[...]YccYKQOsopF26dmPcE0tMFvwjUfgld5pPZ93heq8KxUFjjqLmZ7i67Op6pvqcbD6kpSnV9+5BNV+xNr6YJZIhD0llA38COlh253MrGDUvN2O1ei4yV5m9W3GJUEn+oNIScKo7mSwoERJUvaukeGRHZQTvam1jp7+jGdQAwiyuNNEXwKXg=
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=A[...]QO
+AWS_SECRET_ACCESS_KEY=pzmg0QgN[....]BH2PjbnX
+AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEPH//////////wEaCXVzLWVhc3QtMSJIMEYCIQC7tQU6MBMuUJalJXceh667e90Mzc0FVgf0pcxuNu6xSQIhANB5yC3xipkhp7xjgmc61yjcEef9GsYIOlHqdyT7BHlhKusBCEoQBBoMNjg0MTU3NzIyMDExIgyC+mYsErXpVqHoKjUqyAEleBoA95Er5yIRczd47Hs67bTmTjCSXkdRh4wQWnWkuVN+F0j2tPCcsx3mtuLFjWFkGPJeo9+QkgqeTNBLfsxHCAZYRVnjN7EM0HXu6BiN3g3zbuTkOIkZAGov[...]YccYKQOsopF26dmPcE0tMFvwjUfgld5pPZ93heq8KxUFjjqLmZ7i67Op6pvqcbD6kpSnV9+5BNV+xNr6YJZIhD0llA38COlh253MrGDUvN2O1ei4yV5m9W3GJUEn+oNIScKo7mSwoERJUvaukeGRHZQTvam1jp7+jGdQAwiyuNNEXwKXg=
 ```
 
 7. `source .env`
 
-8. `export export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN`
+8. `export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN`
 
 9. `make aws-tf`
 
