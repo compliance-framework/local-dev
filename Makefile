@@ -95,3 +95,40 @@ aws-tf-destroy:                              ## Destroy Terraform for aws
 ## DEBUG
 print-env:                                   ## Prints environment (for debug)
 	env
+
+## MINIKUBE + k8s plugin
+GITHUB_USERNAME := $(shell . ./.env; echo $$GITHUB_USERNAME)
+GITHUB_PAT := $(shell . ./.env; echo $$GITHUB_PAT)
+NAMESPACE=ccf
+
+minikube-check-tools:
+	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
+		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
+		exit 1; \
+	else \
+		echo "✅ All required tools (minikube and kubectl) are installed."; \
+	fi
+
+minikube-run:
+	@minikube start --driver=docker --network=bridged
+
+# Get env vars in the right place for gooci
+minikube-gooci-secret-apply:
+	@echo "Creating Kubernetes secret..."
+	@echo "apiVersion: v1" > ghcr-secret.yaml
+	@echo "kind: Secret" >> ghcr-secret.yaml
+	@echo "metadata:" >> ghcr-secret.yaml
+	@echo "  name: ghcr-login-secret" >> ghcr-secret.yaml
+	@echo "  namespace: $(NAMESPACE)" >> ghcr-secret.yaml
+	@echo "type: Opaque" >> ghcr-secret.yaml
+	@echo "data:" >> ghcr-secret.yaml
+	@echo "  GITHUB_USERNAME: $(shell echo -n "$(GITHUB_USERNAME)" | base64)" >> ghcr-secret.yaml
+	@echo "  GITHUB_PAT: $(shell echo -n "$(GITHUB_PAT)" | base64)" >> ghcr-secret.yaml
+	@kubectl apply -f ghcr-secret.yaml
+	@echo "Creating Kubernetes secret applied!"
+	@rm -rf ghcr-secret.yaml
+
+# Deploy Kubernetes resources
+minikube-add-deployment: minikube-gooci-secret-apply
+	@echo "Applying agent and plugin template"
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/template.yaml

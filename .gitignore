@@ -16,3 +16,6 @@ DEMO.md
 
 # Goland / Jetbrains IDEs
 .idea/
+
+# minikube / k8s
+ghcr-secret.yaml
