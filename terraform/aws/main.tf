@@ -171,6 +171,101 @@ resource "aws_security_group" "db_sg" {
   }
 }
 
+resource "aws_security_group" "violating_sg" {
+  name        = "violating-sg"
+  description = "Security group with multiple violations for testing - omit rules while running CCF and watch the Findings/Observations drop off"
+
+  # Rule: _deny_icmp_access
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows ICMP from anywhere (violation)"
+  }
+
+  # Rule: _deny_open_database_ports
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows MySQL from anywhere (violation)"
+  }
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows PostgreSQL from anywhere (violation)"
+  }
+
+  ingress {
+    from_port   = 1433
+    to_port     = 1433
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows MSSQL from anywhere (violation)"
+  }
+
+  # Rule: _deny_open_rdp
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows RDP from anywhere (violation)"
+  }
+
+  # Rule: _deny_open_ssh
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows SSH from anywhere (violation)"
+  }
+
+  # Rule: _deny_permissive_cidr
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows HTTP from anywhere (violation)"
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/1"]
+    description = "Allows HTTPS from a broad range (violation)"
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/2"]
+    description = "Allows HTTP-alt from a broad range (violation)"
+  }
+
+  # Rule: _deny_unrestricted_egress
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allows all outbound traffic (violation)"
+  }
+
+  tags = {
+    Name = "CCF-violating-SG"
+  }
+}
+
 # 🔹 EC2 Instances
 resource "aws_instance" "bastion" {
   ami             = "ami-0e56583ebfdfc098f"
