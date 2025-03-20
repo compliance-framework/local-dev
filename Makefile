@@ -96,13 +96,9 @@ aws-tf-destroy:                              ## Destroy Terraform for aws
 print-env:                                   ## Prints environment (for debug)
 	env
 
-
+## MINIKUBE + K8S plugin
 GITHUB_USERNAME := $(shell . ./.env; echo $$GITHUB_USERNAME)
 GITHUB_PAT := $(shell . ./.env; echo $$GITHUB_PAT)
-
-# minikube:
-# 	@kubectl apply -n ccf -f ./demo-agents/versions/k8s-native/template.yaml
-
 NAMESPACE=ccf	
 
 # Deploy Kubernetes resources
@@ -110,7 +106,7 @@ minikube-add-deployment: gooci-secret
 	@echo "Applying agent and plugin template"
 	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/template.yaml
 
-gooci-secret:
+minikube-gooci-secret-apply:
 	@echo "Creating Kubernetes secret..."
 	@echo "apiVersion: v1" > ghcr-secret.yaml
 	@echo "kind: Secret" >> ghcr-secret.yaml
