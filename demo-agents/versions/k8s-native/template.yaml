@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plugin-k8s-native-config
+data:
+  config.yaml: |
+    daemon: false
+    verbosity: 2
+
+    api:
+      url: http://localhost:8080
+
+    plugins:
+      k8s-native:
+        source: ghcr.io/compliance-framework/plugin-k8s-native:v0.0.3
+        policies:
+          - ghcr.io/compliance-framework/plugin-k8s-native-policies:latest
+        labels:
+          type: aws
+          service: ec2
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plugin-k8s-native
+  labels:
+    app: plugin-k8s-native
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plugin-k8s-native
+  template:
+    metadata:
+      labels:
+        app: plugin-k8s-native
+    spec:
+      initContainers:
+        - name: ghcr-login
+          image: golang:1.20
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              go install github.com/awslabs/gooci@latest &&
+              export PATH=$PATH:/go/bin &&
+              gooci login ghcr.io --username $GITHUB_USERNAME --password $GITHUB_PAT
+      containers:
+        - name: agent
+          image: ghcr.io/compliance-framework/agent:v0.0.15
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/plugin/config.yaml
+              subPath: config.yaml
+          command: ["/bin/agent agent"]
+          args: ["-c", "/etc/plugin/config.yaml"]
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: plugin-k8s-native-config
+        - name: ghcr-secret
+          secret:
+            secretName: ghcr-login-secret
+      restartPolicy: Always
