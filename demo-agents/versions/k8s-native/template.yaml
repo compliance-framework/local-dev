@@ -16,8 +16,7 @@ data:
         policies:
           - ghcr.io/compliance-framework/plugin-k8s-native-policies:latest
         labels:
-          type: aws
-          service: ec2
+          type: k8s
 
 ---
 apiVersion: apps/v1
@@ -68,26 +67,15 @@ spec:
                 key: GITHUB_PAT
 
       containers:
-        - name: agent
-          image: ghcr.io/compliance-framework/agent:v0.0.15
-          imagePullPolicy: Always
+        - name: compliance-agent
+          image: ghcr.io/compliance-framework/agent:latest
+          command: ["/app/concom"]
+          args: ["agent", "-c", "/app/.compliance-framework/config.yaml"]
           volumeMounts:
             - name: config-volume
-              mountPath: /etc/plugin/config.yaml
-              subPath: config.yaml
-          command: ["/bin/agent", "agent"]
-          args: ["-c", "/etc/plugin/config.yaml"]
-          ports:
-            - containerPort: 8080
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "256Mi"
-            requests:
-              cpu: "250m"
-              memory: "128Mi"
+              mountPath: "/app/.compliance-framework/config.yaml"
+              subPath: "config.yaml"
       volumes:
         - name: config-volume
           configMap:
             name: plugin-k8s-native-config
-      restartPolicy: Always
