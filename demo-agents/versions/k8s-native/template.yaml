@@ -8,7 +8,7 @@ data:
     verbosity: 2
 
     api:
-      url: http://localhost:8080
+      url: http://host.minikube.internal:8080
 
     plugins:
       k8s-native:
@@ -37,14 +37,36 @@ spec:
         app: plugin-k8s-native
     spec:
       initContainers:
-        - name: ghcr-login
-          image: golang:1.20
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              go install github.com/awslabs/gooci@latest &&
-              export PATH=$PATH:/go/bin &&
-              gooci login ghcr.io --username $GITHUB_USERNAME --password $GITHUB_PAT
+      - name: ghcr-login
+        image: golang:1.23.2
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Cleaning GitHub credentials..."
+            export CLEAN_GITHUB_USERNAME=$(echo "$GITHUB_USERNAME" | tr -d '\n' | tr -d '\r')
+            export CLEAN_GITHUB_TOKEN=$(echo "$GITHUB_PAT" | tr -d '\n' | tr -d '\r')
+
+            echo "Configuring git credentials..."
+            git config --global url."https://${CLEAN_GITHUB_USERNAME}:${CLEAN_GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+
+            echo "Installing gooci..."
+            go install github.com/compliance-framework/gooci@latest
+
+            echo "Setting PATH and logging into GHCR..."
+            export PATH=$PATH:/go/bin
+            gooci login ghcr.io --username "$CLEAN_GITHUB_USERNAME" --password "$CLEAN_GITHUB_TOKEN"
+        env:
+          - name: GITHUB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: ghcr-login-secret
+                key: GITHUB_USERNAME
+          - name: GITHUB_PAT
+            valueFrom:
+              secretKeyRef:
+                name: ghcr-login-secret
+                key: GITHUB_PAT
+
       containers:
         - name: agent
           image: ghcr.io/compliance-framework/agent:v0.0.15
@@ -53,7 +75,7 @@ spec:
             - name: config-volume
               mountPath: /etc/plugin/config.yaml
               subPath: config.yaml
-          command: ["/bin/agent agent"]
+          command: ["/bin/agent", "agent"]
           args: ["-c", "/etc/plugin/config.yaml"]
           ports:
             - containerPort: 8080
@@ -68,7 +90,4 @@ spec:
         - name: config-volume
           configMap:
             name: plugin-k8s-native-config
-        - name: ghcr-secret
-          secret:
-            secretName: ghcr-login-secret
       restartPolicy: Always
