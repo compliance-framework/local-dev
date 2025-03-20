@@ -173,7 +173,7 @@ resource "aws_security_group" "db_sg" {
 
 resource "aws_security_group" "violating_sg" {
   name        = "violating-sg"
-  description = "Security group with multiple violations for testing - omit, rules while running CCF and watch the Findings/Observations drop off"
+  description = "Security group with multiple violations for testing - omit rules while running CCF and watch the Findings/Observations drop off"
 
   # Rule: _deny_icmp_access
   ingress {
