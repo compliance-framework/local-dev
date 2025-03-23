@@ -18,6 +18,13 @@ data:
         labels:
           type: k8s
           service: pod
+      cluster:
+        source: ghcr.io/compliance-framework/plugin-kubernetes-cluster:v0.0.3
+        policies:
+          - ghcr.io/compliance-framework/plugin-kubernetes-pod-cluster:latest
+        labels:
+          type: k8s
+          service: RBAC-etc
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -66,6 +73,11 @@ spec:
           image: ghcr.io/compliance-framework/agent:latest
           command: ["/app/concom"]
           args: ["agent", "-c", "/app/.compliance-framework/config.yaml"]
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
           volumeMounts:
             - name: config-volume
               mountPath: "/app/.compliance-framework/config.yaml"
