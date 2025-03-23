@@ -1,71 +1,66 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: plugin-k8s-native-config
+  name: plugin-kubernetes-policies-config
 data:
   config.yaml: |
-    daemon: false
+    daemon: true
     verbosity: 2
 
     api:
       url: http://host.minikube.internal:8080
 
     plugins:
-      k8s-native:
-        source: ghcr.io/compliance-framework/plugin-k8s-native:v0.0.3
+      pod:
+        source: ghcr.io/compliance-framework/plugin-kubernetes-pod:v0.0.1
         policies:
-          - ghcr.io/compliance-framework/plugin-k8s-native-policies:latest
+          - ghcr.io/compliance-framework/plugin-kubernetes-pod-policies:latest
         labels:
           type: k8s
+          service: pod
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-reader-binding
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: ccf
+roleRef:
+  kind: ClusterRole
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plugin-k8s-native
+  name: plugin-kubernetes
   labels:
-    app: plugin-k8s-native
+    app: plugin-kubernetes
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: plugin-k8s-native
+      app: plugin-kubernetes
   template:
     metadata:
       labels:
-        app: plugin-k8s-native
+        app: plugin-kubernetes
     spec:
-      initContainers:
-      - name: ghcr-login
-        image: golang:1.23.2
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            echo "Cleaning GitHub credentials..."
-            export CLEAN_GITHUB_USERNAME=$(echo "$GITHUB_USERNAME" | tr -d '\n' | tr -d '\r')
-            export CLEAN_GITHUB_TOKEN=$(echo "$GITHUB_PAT" | tr -d '\n' | tr -d '\r')
-
-            echo "Configuring git credentials..."
-            git config --global url."https://${CLEAN_GITHUB_USERNAME}:${CLEAN_GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
-
-            echo "Installing gooci..."
-            go install github.com/compliance-framework/gooci@latest
-
-            echo "Setting PATH and logging into GHCR..."
-            export PATH=$PATH:/go/bin
-            gooci login ghcr.io --username "$CLEAN_GITHUB_USERNAME" --password "$CLEAN_GITHUB_TOKEN"
-        env:
-          - name: GITHUB_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: ghcr-login-secret
-                key: GITHUB_USERNAME
-          - name: GITHUB_PAT
-            valueFrom:
-              secretKeyRef:
-                name: ghcr-login-secret
-                key: GITHUB_PAT
-
+      terminationGracePeriodSeconds: 600
       containers:
         - name: compliance-agent
           image: ghcr.io/compliance-framework/agent:latest
@@ -78,4 +73,4 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: plugin-k8s-native-config
+            name: plugin-kubernetes-policies-config
