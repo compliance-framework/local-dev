@@ -110,7 +110,12 @@ minikube-check-tools:
 kubernetes-run:
 	@minikube start --driver=docker --network=bridged
 
+kubernetes-ns:
+	@kubectl create namespace $(NAMESPACE)
+
 # Deploy Kubernetes resources
 kubernetes-agent-deployment:
-	@echo "Applying agent and plugin template"
-	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/template.yaml
+	@echo "Applying perms and agent/plugins"
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role.yaml
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role-binding.yaml
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/deployment.yaml
