@@ -19,7 +19,7 @@ data:
           type: k8s
           service: pod
       cluster:
-        source: ghcr.io/compliance-framework/plugin-kubernetes-cluster:v0.0.4
+        source: ghcr.io/compliance-framework/plugin-kubernetes-cluster:v0.0.5
         policies:
           - ghcr.io/compliance-framework/plugin-kubernetes-cluster-policies:latest
         labels:

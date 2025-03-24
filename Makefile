@@ -107,8 +107,8 @@ minikube-check-tools:
 		echo "✅ All required tools (minikube and kubectl) are installed."; \
 	fi
 
-kubernetes-run:
-	@minikube start --driver=docker --network=bridged
+minikube-run:
+	@minikube start --driver=docker --network=bridged --extra-config=kubelet.enable-debugging-handlers=true
 
 kubernetes-ns:
 	@kubectl create namespace $(NAMESPACE)
