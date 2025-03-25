@@ -57,8 +57,8 @@ services:
     build:
       context: ../demo-agents/ubuntu
       args:
-        AGENT_VERSION: 0.0.15
-    image: demo-agent:0.0.15
+        AGENT_VERSION: 0.1.1
+    image: demo-agent:0.1.1
     hostname: aws-worker-1
     volumes:
       - ../demo-agents/versions/aws/config.yml:/config.yml
