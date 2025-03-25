@@ -95,3 +95,27 @@ aws-tf-destroy:                              ## Destroy Terraform for aws
 ## DEBUG
 print-env:                                   ## Prints environment (for debug)
 	env
+
+## Kubernetes
+NAMESPACE=ccf
+
+minikube-check-tools:
+	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
+		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
+		exit 1; \
+	else \
+		echo "✅ All required tools (minikube and kubectl) are installed."; \
+	fi
+
+minikube-run:
+	@minikube start --driver=docker --network=bridged --extra-config=kubelet.enable-debugging-handlers=true
+
+kubernetes-ns:
+	@kubectl create namespace $(NAMESPACE)
+
+# Deploy Kubernetes resources
+kubernetes-agent-deployment:
+	@echo "Applying perms and agent/plugins"
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role.yaml
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role-binding.yaml
+	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/deployment.yaml
