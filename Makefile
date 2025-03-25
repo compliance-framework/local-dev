@@ -22,6 +22,9 @@ AZURE_CLIENT_ID       := $(shell . ./.env; echo $$AZURE_CLIENT_ID)
 AZURE_TENANT_ID       := $(shell . ./.env; echo $${AZURE_TENANT_ID})
 AZURE_CLIENT_SECRET   := $(shell . ./.env; echo $$AZURE_CLIENT_SECRET)
 
+## Kubernetes
+K8S_NAMESPACE=ccf
+
 ## DOCKER COMPOSE
 COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 
@@ -31,7 +34,7 @@ demo-go-check:
 
 demo-restart: demo-go-check demo-destroy demo-up           ## Tear down whole demo, then bring up
 demo-destroy: demo-go-check compose-destroy aws-tf-destroy ## Tear down whole demo
-demo-up: demo-go-check aws-tf compose-up                   ## Start up demo
+demo-up:      demo-go-check aws-tf compose-up              ## Start up demo
 
 ## DEV
 compose-restart: compose-down compose-up     ## Tear down environment and setup new one. (Preserves Volumes)
@@ -92,14 +95,8 @@ aws-tf-destroy:                              ## Destroy Terraform for aws
 		exit 1; \
 	fi
 
-## DEBUG
-print-env:                                   ## Prints environment (for debug)
-	env
 
-## Kubernetes
-NAMESPACE=ccf
-
-minikube-check-tools:
+minikube-check-tools:                        ## Check tools are available for running kube locally
 	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
 		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
 		exit 1; \
@@ -107,15 +104,20 @@ minikube-check-tools:
 		echo "✅ All required tools (minikube and kubectl) are installed."; \
 	fi
 
-minikube-run:
-	@minikube start --driver=docker --network=bridged --extra-config=kubelet.enable-debugging-handlers=true
+minikube-run: minikube-check-tools           ## Start up minikube
+	@minikube status -f='{{.Host}}' | grep Running >/dev/null 2>&1 || minikube start --driver=docker --network=bridged --extra-config=kubelet.enable-debugging-handlers=true
 
-kubernetes-ns:
-	@kubectl create namespace $(NAMESPACE)
+kubernetes-ns: minikube-run minikube-check-tools   ## Create minikube namespace
+	@kubectl get ns | grep $(K8S_NAMESPACE) >/dev/null 2>&1 || kubectl create namespace $(K8S_NAMESPACE)
 
 # Deploy Kubernetes resources
-kubernetes-agent-deployment:
+kubernetes-agent-deployment: kubernetes-ns         ## Deploy agent to Kubernetes
 	@echo "Applying perms and agent/plugins"
-	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role.yaml
-	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role-binding.yaml
-	@kubectl apply -n $(NAMESPACE) -f ./demo-agents/versions/k8s-native/deployment.yaml
+	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role.yaml
+	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role-binding.yaml
+	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/deployment.yaml
+
+## DEBUG
+print-env:                                   ## Prints environment (for debug)
+	env
+
