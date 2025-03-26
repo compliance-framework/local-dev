@@ -37,16 +37,16 @@ demo-up:      demo-go-check aws-tf compose-up              ## Start up demo
 ## DEV
 compose-restart: compose-down compose-up     ## Tear down environment and setup new one. (Preserves Volumes)
 
-compose-destroy:                             ## Tear down environment and destroy data
+compose-destroy: docker-check                ## Tear down environment and destroy data
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do destroy
 
-compose-down:                                ## Bring down environment
+compose-down: docker-check                   ## Bring down environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do stop
 
 compose-up: build                            ## Bring up environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_all
 
-compose-pull:                                ## Update all local images
+compose-pull: docker-check                   ## Update all local images
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do pull
 
 common-only-restart: compose-down            ## Bring up common services only
@@ -58,14 +58,30 @@ api-only-restart: compose-down               ## Bring up common services and api
 agents-only-restart: compose-down            ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_agents
 
-build:                                       ## Bring up common services and agents only
+build: docker-check                          ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
+
+## DOCKER
+docker-check:                             # Check docker command works
+	@if eval $$COMPOSE_COMMAND ls >/dev/null 2>&1 || podman info >/dev/null 2>&1; then \
+		true; \
+	else \
+		echo '================================================================================'; \
+		echo 'Docker should be set up, eg: export COMPOSE_COMMAND="docker compose"'; \
+		echo '================================================================================'; \
+		exit 1; \
+	fi
 
 ## TF
 aws-check-creds:                             # Check AWS credentials exist
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
 		exit 1; \
+	fi
+	@if aws sts get-caller-identity >/dev/null 2>&1; then \
+		true; \
+	else \
+		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running 'aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600', updating '.env', and running 'source .env' before re-running"; \
 	fi
 
 aws-tf: aws-check-creds                      ## Set up Terraform for aws
