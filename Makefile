@@ -29,9 +29,7 @@ K8S_NAMESPACE=ccf
 COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 
 ## DEMO
-demo-go-check:
-	aws-check-creds
-
+demo-go-check: aws-check-creds
 demo-restart: demo-go-check demo-destroy demo-up           ## Tear down whole demo, then bring up
 demo-destroy: demo-go-check compose-destroy aws-tf-destroy ## Tear down whole demo
 demo-up:      demo-go-check aws-tf compose-up              ## Start up demo
