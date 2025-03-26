@@ -63,6 +63,7 @@ build: docker-check                          ## Bring up common services and age
 
 ## DOCKER
 docker-check:                             # Check docker command works
+	@echo "Checking compose command..."
 	@if eval $$COMPOSE_COMMAND ls >/dev/null 2>&1 || podman info >/dev/null 2>&1; then \
 		true; \
 	else \
@@ -71,9 +72,11 @@ docker-check:                             # Check docker command works
 		echo '================================================================================'; \
 		exit 1; \
 	fi
+	@echo "...done."
 
 ## TF
 aws-check-creds:                             # Check AWS credentials exist
+	@echo "Checking AWS creds..."
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
 		exit 1; \
@@ -83,6 +86,7 @@ aws-check-creds:                             # Check AWS credentials exist
 	else \
 		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running 'aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600', updating '.env', and running 'source .env' before re-running"; \
 	fi
+	@echo "...done."
 
 aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
