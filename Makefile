@@ -87,7 +87,15 @@ aws-check-creds:                             # Check AWS credentials exist
 	fi
 	@echo "...done."
 
-azure-check-creds:
+azure-check-tools:
+	@if ! command -v az &>/dev/null; then \
+		echo "❌ ERROR: Both az needs installing."; \
+		exit 1; \
+	else \
+		echo "✅ az installed."; \
+	fi
+
+azure-check-creds: azure-check-tools
 	@echo "Checking Azure creds..."
 	@if [ -z "$$AZURE_CLIENT_ID" ] || [ -z "$$AZURE_CLIENT_SECRET" ] || [ -z "$$AZURE_TENANT_ID" ] || [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
 		echo "Azure credentials not set. Please export AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID."; \
@@ -95,7 +103,7 @@ azure-check-creds:
 	fi
 	@echo "...done."
 
-azure-create-service-principal:
+azure-create-service-principal: azure-check-tools
 	@az ad sp create-for-rbac --name terraform-sp \
 		--role Contributor \
 		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID)
