@@ -61,8 +61,8 @@ agents-only-restart: compose-down            ## Bring up common services and age
 build: docker-check                          ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
 
-## DOCKER
-docker-check:                             # Check docker command works
+## PRE-FLIGHT CHECKS
+docker-check:                                # Check docker command works
 	@echo "Checking compose command..."
 	@if eval $$COMPOSE_COMMAND ls >/dev/null 2>&1 || podman info >/dev/null 2>&1; then \
 		true; \
@@ -74,7 +74,6 @@ docker-check:                             # Check docker command works
 	fi
 	@echo "...done."
 
-## TF
 aws-check-creds:                             # Check AWS credentials exist
 	@echo "Checking AWS creds..."
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
@@ -88,6 +87,15 @@ aws-check-creds:                             # Check AWS credentials exist
 	fi
 	@echo "...done."
 
+minikube-check-tools:                        ## Check tools are available for running kube locally
+	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
+		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
+		exit 1; \
+	else \
+		echo "✅ All required tools (minikube and kubectl) are installed."; \
+	fi
+
+## TF
 aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
@@ -101,7 +109,7 @@ aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	fi
 	@pushd ./terraform/aws && terraform apply -auto-approve tfplan
 
-aws-tf-destroy:                              ## Destroy Terraform for aws
+aws-tf-destroy: aws-check-creds              ## Destroy Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
 		echo "Terraform init failed. Exiting."; \
@@ -113,23 +121,15 @@ aws-tf-destroy:                              ## Destroy Terraform for aws
 		exit 1; \
 	fi
 
-
-minikube-check-tools:                        ## Check tools are available for running kube locally
-	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
-		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
-		exit 1; \
-	else \
-		echo "✅ All required tools (minikube and kubectl) are installed."; \
-	fi
-
+## KUBERNETES
 minikube-run: minikube-check-tools           ## Start up minikube
 	@minikube status -f='{{.Host}}' | grep Running >/dev/null 2>&1 || minikube start --driver=docker --network=bridged --extra-config=kubelet.enable-debugging-handlers=true
 
-kubernetes-ns: minikube-run minikube-check-tools   ## Create minikube namespace
+kubernetes-ns: minikube-run                  ## Create minikube namespace
 	@kubectl get ns | grep $(K8S_NAMESPACE) >/dev/null 2>&1 || kubectl create namespace $(K8S_NAMESPACE)
 
 # Deploy Kubernetes resources
-kubernetes-agent-deployment: kubernetes-ns         ## Deploy agent to Kubernetes
+kubernetes-agent-deployment: kubernetes-ns   ## Deploy agent to Kubernetes
 	@echo "Applying perms and agent/plugins"
 	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role.yaml
 	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role-binding.yaml
@@ -138,4 +138,3 @@ kubernetes-agent-deployment: kubernetes-ns         ## Deploy agent to Kubernetes
 ## DEBUG
 print-env:                                   ## Prints environment (for debug)
 	env
-
