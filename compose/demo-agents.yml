@@ -71,7 +71,7 @@ services:
   # env vars set in terminal session
   worker-azure:
     build:
-      context: ../demo-agents/ubuntu
+      context: ../demo-agents/azure
       args:
         AGENT_VERSION: 0.1.1
     image: demo-agent:0.1.1
