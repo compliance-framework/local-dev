@@ -89,7 +89,7 @@ aws-check-creds:                             # Check AWS credentials exist
 
 azure-check-tools:
 	@if ! command -v az &>/dev/null; then \
-		echo "❌ ERROR: Both az needs installing."; \
+		echo "❌ ERROR: az needs installing."; \
 		exit 1; \
 	else \
 		echo "✅ az installed."; \
