@@ -103,7 +103,7 @@ azure-check-creds: azure-check-tools
 	fi
 	@echo "...done."
 
-azure-create-service-principal: azure-check-tools
+azure-create-service-principal: azure-check-creds
 	@az ad sp create-for-rbac --name terraform-sp \
 		--role Contributor \
 		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID)
