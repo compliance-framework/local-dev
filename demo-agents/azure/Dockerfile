@@ -8,9 +8,6 @@ RUN apt-get update && \
 # Install Azure CLI  
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
-# Login to Azure CLI
-RUN az login --service-principal -u ${AZURE_CLIENT_ID} -p ${AZURE_CLIENT_SECRET} --tenant ${AZURE_TENANT_ID}
-
 RUN wget https://github.com/compliance-framework/agent/archive/refs/tags/v${AGENT_VERSION}.tar.gz -O agent.tar.gz && \
     tar -xzf agent.tar.gz && \
     mv agent-${AGENT_VERSION} agent && \

@@ -73,8 +73,8 @@ services:
     build:
       context: ../demo-agents/azure
       args:
-        AGENT_VERSION: 0.1.1
-    image: demo-agent:0.1.1
+        AGENT_VERSION: 0.1.4
+    image: demo-agent:0.1.4
     hostname: azure-worker-1
     volumes:
       - ../demo-agents/versions/azure/config.yml:/config.yml
