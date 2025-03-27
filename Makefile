@@ -87,6 +87,26 @@ aws-check-creds:                             # Check AWS credentials exist
 	fi
 	@echo "...done."
 
+azure-check-creds:
+	@echo "Checking Azure creds..."
+	@if [ -z "$$AZURE_CLIENT_ID" ] || [ -z "$$AZURE_CLIENT_SECRET" ] || [ -z "$$AZURE_TENANT_ID" ] || [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
+		echo "Azure credentials not set. Please export AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID."; \
+		exit 1; \
+	fi
+	@echo "...done."
+
+azure-create-service-principal:
+	@az ad sp create-for-rbac --name terraform-sp \
+		--role Contributor \
+		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID)
+
+azure-login: azure-check-creds
+	@az login --service-principal \
+	  --username "$(AZURE_CLIENT_ID)" \
+	  --password "$(AZURE_CLIENT_SECRET)" \
+	  --tenant "$(AZURE_TENANT_ID)"
+
+
 minikube-check-tools:                        ## Check tools are available for running kube locally
 	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
 		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
@@ -95,7 +115,7 @@ minikube-check-tools:                        ## Check tools are available for ru
 		echo "✅ All required tools (minikube and kubectl) are installed."; \
 	fi
 
-## TF
+## AWS TF
 aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
@@ -112,12 +132,38 @@ aws-tf: aws-check-creds                      ## Set up Terraform for aws
 aws-tf-destroy: aws-check-creds              ## Destroy Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
-		echo "Terraform init failed. Exiting."; \
+		echo "AWS Terraform init failed. Exiting."; \
 		exit 1; \
 	fi
 	@pushd ./terraform/aws && terraform apply -destroy -auto-approve; \
 	if [ $$? -ne 0 ]; then \
-		echo "Terraform destroy failed. Exiting."; \
+		echo "AWS Terraform destroy failed. Exiting."; \
+		exit 1; \
+	fi
+
+## Azure TF
+azure-tf: azure-login
+	@pushd ./terraform/azure && terraform init; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform init failed. Exiting."; \
+		exit 1; \
+	fi
+	@pushd ./terraform/azure && terraform plan -out tfplan; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform plan failed. Exiting."; \
+		exit 1; \
+	fi
+	@pushd ./terraform/azure && terraform apply -auto-approve tfplan
+
+azure-tf-destroy: azure-login
+	@pushd ./terraform/azure && terraform init; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform init failed. Exiting."; \
+		exit 1; \
+	fi
+	@pushd ./terraform/azure && terraform apply -destroy -auto-approve; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform destroy failed. Exiting."; \
 		exit 1; \
 	fi
 
