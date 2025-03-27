@@ -150,18 +150,12 @@ aws-tf-destroy: aws-check-creds              ## Destroy Terraform for aws
 	fi
 
 ## Azure TF
-azure-tf: azure-login
-	@pushd ./terraform/azure && terraform init; \
-	if [ $$? -ne 0 ]; then \
-		echo "Azure Terraform init failed. Exiting."; \
-		exit 1; \
-	fi
-	@pushd ./terraform/azure && terraform plan -out tfplan; \
-	if [ $$? -ne 0 ]; then \
-		echo "Azure Terraform plan failed. Exiting."; \
-		exit 1; \
-	fi
-	@pushd ./terraform/azure && terraform apply -auto-approve tfplan
+azure-tf: azure-login  ## Set up Terraform for Azure
+	@pushd ./terraform/azure && \
+	terraform init -input=false && \
+	terraform plan -input=false -var "subscription_id=${AZURE_SUBSCRIPTION_ID}" -var "tenant_id=${AZURE_TENANT_ID}" -out tfplan && \
+	terraform apply -auto-approve tfplan; \
+	popd
 
 azure-tf-destroy: azure-login
 	@pushd ./terraform/azure && terraform init; \
