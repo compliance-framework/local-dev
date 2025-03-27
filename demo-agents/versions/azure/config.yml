@@ -1,0 +1,14 @@
+daemon: false
+verbosity: 2
+
+api:
+  url: http://configuration-service:8080
+
+plugins:
+  azure_vms:
+    source: ghcr.io/compliance-framework/plugin-azure-vms:v0.0.1
+    policies:
+      - ghcr.io/compliance-framework/plugin-azure-vm-policies:v0.0.1
+    labels:
+      type: azure
+      service: vms
