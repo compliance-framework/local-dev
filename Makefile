@@ -30,9 +30,9 @@ COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 
 ## DEMO
 demo-go-check: aws-check-creds
-demo-restart: demo-go-check demo-destroy demo-up           ## Tear down whole demo, then bring up
-demo-destroy: demo-go-check compose-destroy aws-tf-destroy ## Tear down whole demo
-demo-up:      demo-go-check aws-tf compose-up              ## Start up demo
+demo-restart: demo-go-check demo-destroy demo-up                            ## Tear down whole demo, then bring up
+demo-destroy: demo-go-check compose-destroy aws-tf-destroy azure-tf-destroy ## Tear down whole demo
+demo-up:      demo-go-check aws-tf azure-tf compose-up                      ## Start up demo
 
 ## DEV
 compose-restart: compose-down compose-up     ## Tear down environment and setup new one. (Preserves Volumes)
@@ -163,7 +163,7 @@ azure-tf-destroy: azure-login
 		echo "Azure Terraform init failed. Exiting."; \
 		exit 1; \
 	fi
-	@pushd ./terraform/azure && terraform apply -destroy -auto-approve; \
+	@pushd ./terraform/azure && terraform apply -input=false -var "subscription_id=${AZURE_SUBSCRIPTION_ID}" -var "tenant_id=${AZURE_TENANT_ID}" -destroy -auto-approve; \
 	if [ $$? -ne 0 ]; then \
 		echo "Azure Terraform destroy failed. Exiting."; \
 		exit 1; \
