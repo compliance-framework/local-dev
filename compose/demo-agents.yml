@@ -51,8 +51,7 @@ services:
     networks:
       - continuous-compliance
 
-  # This worker requires AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY & AWS_SESSION_TOKEN 
-  # env vars set in terminal session
+  # This worker requires AWS env vars
   worker-aws:
     build:
       context: ../demo-agents/ubuntu
@@ -67,8 +66,7 @@ services:
       - continuous-compliance
 
 
-  # This worker requires AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY & AWS_SESSION_TOKEN 
-  # env vars set in terminal session
+  # This worker requires Azure env vars
   worker-azure:
     build:
       context: ../demo-agents/azure
