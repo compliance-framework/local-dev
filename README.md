@@ -58,6 +58,12 @@ make compose-restart
 
 - `make azure-login`
 
+If you wish to to create them from scratch and provision elsewhere:
+
+- `make azure-create-service-principal`
+- take response from this and export new creds
+- `make azure-login`
+
 ### AWS Setup
 
 #### AWS Setup Prerequisites
