@@ -8,6 +8,7 @@
 *.so
 *.dylib
 bin/**
+*.bak
 
 .env
 .envrc

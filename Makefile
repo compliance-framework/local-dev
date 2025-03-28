@@ -78,14 +78,26 @@ aws-check-creds:                             # Check AWS credentials exist
 	@echo "Checking AWS creds..."
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
+		echo "================================================================================"; \
+		echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"; \
+		echo "================================================================================"; \
 		exit 1; \
 	fi
 	@if aws sts get-caller-identity >/dev/null 2>&1; then \
 		true; \
 	else \
-		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running 'aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600', updating '.env', and running 'source .env' before re-running"; \
+		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running 'make aws-get-sts && source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN' before re-running"; \
 	fi
 	@echo "...done."
+
+aws-get-sts:                                 # Update .env file with aws details
+	@echo "Getting AWS creds..."
+	@aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600 | tee | grep -E '(Key|Token)' | sed 's/^[^"]*"\([a-zA-Z]*\)": "\([^"]*\)",/\1=\2/' | sed 's/AccessKeyId/AWS_ACCESS_KEY_ID/;s/SecretAccessKey/AWS_SECRET_ACCESS_KEY/;s/SessionToken/AWS_SESSION_TOKEN/' | while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
+	@echo "...done."
+	@echo "Now run..."
+	@echo "================================================================================"
+	@echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"
+	@echo "================================================================================"
 
 azure-check-tools:
 	@if ! command -v az &>/dev/null; then \
@@ -113,7 +125,6 @@ azure-login: azure-check-creds
 	  --username "$(AZURE_CLIENT_ID)" \
 	  --password "$(AZURE_CLIENT_SECRET)" \
 	  --tenant "$(AZURE_TENANT_ID)"
-
 
 minikube-check-tools:                        ## Check tools are available for running kube locally
 	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
