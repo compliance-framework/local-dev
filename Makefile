@@ -30,9 +30,9 @@ COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 
 ## DEMO
 demo-go-check: aws-check-creds
-demo-restart: demo-go-check demo-destroy demo-up           ## Tear down whole demo, then bring up
-demo-destroy: demo-go-check compose-destroy aws-tf-destroy ## Tear down whole demo
-demo-up:      demo-go-check aws-tf compose-up              ## Start up demo
+demo-restart: demo-go-check demo-destroy demo-up                            ## Tear down whole demo, then bring up
+demo-destroy: demo-go-check compose-destroy aws-tf-destroy azure-tf-destroy ## Tear down whole demo
+demo-up:      demo-go-check aws-tf azure-tf compose-up                      ## Start up demo
 
 ## DEV
 compose-restart: compose-down compose-up     ## Tear down environment and setup new one. (Preserves Volumes)
@@ -87,6 +87,34 @@ aws-check-creds:                             # Check AWS credentials exist
 	fi
 	@echo "...done."
 
+azure-check-tools:
+	@if ! command -v az &>/dev/null; then \
+		echo "❌ ERROR: az needs installing."; \
+		exit 1; \
+	else \
+		echo "✅ az installed."; \
+	fi
+
+azure-check-creds: azure-check-tools
+	@echo "Checking Azure creds..."
+	@if [ -z "$$AZURE_CLIENT_ID" ] || [ -z "$$AZURE_CLIENT_SECRET" ] || [ -z "$$AZURE_TENANT_ID" ] || [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
+		echo "Azure credentials not set. Please export AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID."; \
+		exit 1; \
+	fi
+	@echo "...done."
+
+azure-create-service-principal: azure-check-creds
+	@az ad sp create-for-rbac --name terraform-sp \
+		--role Contributor \
+		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID)
+
+azure-login: azure-check-creds
+	@az login --service-principal \
+	  --username "$(AZURE_CLIENT_ID)" \
+	  --password "$(AZURE_CLIENT_SECRET)" \
+	  --tenant "$(AZURE_TENANT_ID)"
+
+
 minikube-check-tools:                        ## Check tools are available for running kube locally
 	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
 		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
@@ -95,7 +123,7 @@ minikube-check-tools:                        ## Check tools are available for ru
 		echo "✅ All required tools (minikube and kubectl) are installed."; \
 	fi
 
-## TF
+## AWS TF
 aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
@@ -112,12 +140,32 @@ aws-tf: aws-check-creds                      ## Set up Terraform for aws
 aws-tf-destroy: aws-check-creds              ## Destroy Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
-		echo "Terraform init failed. Exiting."; \
+		echo "AWS Terraform init failed. Exiting."; \
 		exit 1; \
 	fi
 	@pushd ./terraform/aws && terraform apply -destroy -auto-approve; \
 	if [ $$? -ne 0 ]; then \
-		echo "Terraform destroy failed. Exiting."; \
+		echo "AWS Terraform destroy failed. Exiting."; \
+		exit 1; \
+	fi
+
+## Azure TF
+azure-tf: azure-login  ## Set up Terraform for Azure
+	@pushd ./terraform/azure && \
+	terraform init -input=false && \
+	terraform plan -input=false -var "subscription_id=${AZURE_SUBSCRIPTION_ID}" -var "tenant_id=${AZURE_TENANT_ID}" -out tfplan && \
+	terraform apply -auto-approve tfplan; \
+	popd
+
+azure-tf-destroy: azure-login
+	@pushd ./terraform/azure && terraform init; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform init failed. Exiting."; \
+		exit 1; \
+	fi
+	@pushd ./terraform/azure && terraform apply -input=false -var "subscription_id=${AZURE_SUBSCRIPTION_ID}" -var "tenant_id=${AZURE_TENANT_ID}" -destroy -auto-approve; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform destroy failed. Exiting."; \
 		exit 1; \
 	fi
 

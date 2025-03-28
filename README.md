@@ -46,6 +46,24 @@ Then, if you want to bring the services up (or restart):
 make compose-restart
 ```
 
+### Azure setup
+
+#### Azure Setup Prerequisites
+
+- `az` command
+
+- Go to onePassword and get azure creds (`Azure CCF Login`)
+
+- Copy the creds to .env for export
+
+- `make azure-login`
+
+If you wish to to create them from scratch and provision elsewhere:
+
+- `make azure-create-service-principal`
+- take response from this and export new creds
+- `make azure-login`
+
 ### AWS Setup
 
 #### AWS Setup Prerequisites
