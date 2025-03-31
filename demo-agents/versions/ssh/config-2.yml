@@ -6,7 +6,7 @@ api:
 
 plugins:
   ssh:
-    source: ghcr.io/compliance-framework/plugin-local-ssh:v0.0.14
+    source: ghcr.io/compliance-framework/plugin-local-ssh:v0.1.1
     policies:
       - ghcr.io/compliance-framework/plugin-local-ssh-policies:latest
     labels:
