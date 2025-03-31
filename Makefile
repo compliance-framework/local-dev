@@ -22,30 +22,31 @@ AZURE_CLIENT_ID       := $(shell . ./.env; echo $$AZURE_CLIENT_ID)
 AZURE_TENANT_ID       := $(shell . ./.env; echo $${AZURE_TENANT_ID})
 AZURE_CLIENT_SECRET   := $(shell . ./.env; echo $$AZURE_CLIENT_SECRET)
 
+## Kubernetes
+K8S_NAMESPACE=ccf
+
 ## DOCKER COMPOSE
 COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 
 ## DEMO
-demo-go-check:
-	aws-check-creds
-
-demo-restart: demo-go-check demo-destroy demo-up           ## Tear down whole demo, then bring up
-demo-destroy: demo-go-check compose-destroy aws-tf-destroy ## Tear down whole demo
-demo-up: demo-go-check aws-tf compose-up                   ## Start up demo
+demo-go-check: aws-check-creds
+demo-restart: demo-go-check demo-destroy demo-up                            ## Tear down whole demo, then bring up
+demo-destroy: demo-go-check compose-destroy aws-tf-destroy azure-tf-destroy ## Tear down whole demo
+demo-up:      demo-go-check aws-tf azure-tf compose-up                      ## Start up demo
 
 ## DEV
 compose-restart: compose-down compose-up     ## Tear down environment and setup new one. (Preserves Volumes)
 
-compose-destroy:                             ## Tear down environment and destroy data
+compose-destroy: docker-check                ## Tear down environment and destroy data
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do destroy
 
-compose-down:                                ## Bring down environment
+compose-down: docker-check                   ## Bring down environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do stop
 
 compose-up: build                            ## Bring up environment
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_all
 
-compose-pull:                                ## Update all local images
+compose-pull: docker-check                   ## Update all local images
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do pull
 
 common-only-restart: compose-down            ## Bring up common services only
@@ -57,16 +58,83 @@ api-only-restart: compose-down               ## Bring up common services and api
 agents-only-restart: compose-down            ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do start_agents
 
-build:                                       ## Bring up common services and agents only
+build: docker-check                          ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
 
-## TF
-aws-check-creds:                             # Check AWS credentials exist
-	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
-		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
+## PRE-FLIGHT CHECKS
+docker-check:                                # Check docker command works
+	@echo "Checking compose command..."
+	@if eval $$COMPOSE_COMMAND ls >/dev/null 2>&1 || podman info >/dev/null 2>&1; then \
+		true; \
+	else \
+		echo '================================================================================'; \
+		echo 'Docker should be set up, eg: export COMPOSE_COMMAND="docker compose"'; \
+		echo '================================================================================'; \
 		exit 1; \
 	fi
+	@echo "...done."
 
+aws-check-creds:                             # Check AWS credentials exist
+	@echo "Checking AWS creds..."
+	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
+		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
+		echo "================================================================================"; \
+		echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"; \
+		echo "================================================================================"; \
+		exit 1; \
+	fi
+	@if aws sts get-caller-identity >/dev/null 2>&1; then \
+		true; \
+	else \
+		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running 'make aws-get-sts && source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN' before re-running"; \
+	fi
+	@echo "...done."
+
+aws-get-sts:                                 # Update .env file with aws details
+	@echo "Getting AWS creds..."
+	@aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600 | tee | grep -E '(Key|Token)' | sed 's/^[^"]*"\([a-zA-Z]*\)": "\([^"]*\)",/\1=\2/' | sed 's/AccessKeyId/AWS_ACCESS_KEY_ID/;s/SecretAccessKey/AWS_SECRET_ACCESS_KEY/;s/SessionToken/AWS_SESSION_TOKEN/' | while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
+	@echo "...done."
+	@echo "Now run..."
+	@echo "================================================================================"
+	@echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"
+	@echo "================================================================================"
+
+azure-check-tools:
+	@if ! command -v az &>/dev/null; then \
+		echo "❌ ERROR: az needs installing."; \
+		exit 1; \
+	else \
+		echo "✅ az installed."; \
+	fi
+
+azure-check-creds: azure-check-tools
+	@echo "Checking Azure creds..."
+	@if [ -z "$$AZURE_CLIENT_ID" ] || [ -z "$$AZURE_CLIENT_SECRET" ] || [ -z "$$AZURE_TENANT_ID" ] || [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
+		echo "Azure credentials not set. Please export AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID."; \
+		exit 1; \
+	fi
+	@echo "...done."
+
+azure-create-service-principal: azure-check-creds
+	@az ad sp create-for-rbac --name terraform-sp \
+		--role Contributor \
+		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID)
+
+azure-login: azure-check-creds
+	@az login --service-principal \
+	  --username "$(AZURE_CLIENT_ID)" \
+	  --password "$(AZURE_CLIENT_SECRET)" \
+	  --tenant "$(AZURE_TENANT_ID)"
+
+minikube-check-tools:                        ## Check tools are available for running kube locally
+	@if ! command -v minikube &>/dev/null || ! command -v kubectl &>/dev/null; then \
+		echo "❌ ERROR: Both minikube and kubectl must be installed."; \
+		exit 1; \
+	else \
+		echo "✅ All required tools (minikube and kubectl) are installed."; \
+	fi
+
+## AWS TF
 aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
@@ -80,17 +148,51 @@ aws-tf: aws-check-creds                      ## Set up Terraform for aws
 	fi
 	@pushd ./terraform/aws && terraform apply -auto-approve tfplan
 
-aws-tf-destroy:                              ## Destroy Terraform for aws
+aws-tf-destroy: aws-check-creds              ## Destroy Terraform for aws
 	@pushd ./terraform/aws && terraform init; \
 	if [ $$? -ne 0 ]; then \
-		echo "Terraform init failed. Exiting."; \
+		echo "AWS Terraform init failed. Exiting."; \
 		exit 1; \
 	fi
 	@pushd ./terraform/aws && terraform apply -destroy -auto-approve; \
 	if [ $$? -ne 0 ]; then \
-		echo "Terraform destroy failed. Exiting."; \
+		echo "AWS Terraform destroy failed. Exiting."; \
 		exit 1; \
 	fi
+
+## Azure TF
+azure-tf: azure-login  ## Set up Terraform for Azure
+	@pushd ./terraform/azure && \
+	terraform init -input=false && \
+	terraform plan -input=false -var "subscription_id=${AZURE_SUBSCRIPTION_ID}" -var "tenant_id=${AZURE_TENANT_ID}" -out tfplan && \
+	terraform apply -auto-approve tfplan; \
+	popd
+
+azure-tf-destroy: azure-login
+	@pushd ./terraform/azure && terraform init; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform init failed. Exiting."; \
+		exit 1; \
+	fi
+	@pushd ./terraform/azure && terraform apply -input=false -var "subscription_id=${AZURE_SUBSCRIPTION_ID}" -var "tenant_id=${AZURE_TENANT_ID}" -destroy -auto-approve; \
+	if [ $$? -ne 0 ]; then \
+		echo "Azure Terraform destroy failed. Exiting."; \
+		exit 1; \
+	fi
+
+## KUBERNETES
+minikube-run: minikube-check-tools           ## Start up minikube
+	@minikube status -f='{{.Host}}' | grep Running >/dev/null 2>&1 || minikube start --driver=docker --network=bridged --extra-config=kubelet.enable-debugging-handlers=true
+
+kubernetes-ns: minikube-run                  ## Create minikube namespace
+	@kubectl get ns | grep $(K8S_NAMESPACE) >/dev/null 2>&1 || kubectl create namespace $(K8S_NAMESPACE)
+
+# Deploy Kubernetes resources
+kubernetes-agent-deployment: kubernetes-ns   ## Deploy agent to Kubernetes
+	@echo "Applying perms and agent/plugins"
+	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role.yaml
+	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/cluster-role-binding.yaml
+	@kubectl apply -n $(K8S_NAMESPACE) -f ./demo-agents/versions/k8s-native/deployment.yaml
 
 ## DEBUG
 print-env:                                   ## Prints environment (for debug)

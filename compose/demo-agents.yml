@@ -51,8 +51,7 @@ services:
     networks:
       - continuous-compliance
 
-  # This worker requires AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY & AWS_SESSION_TOKEN 
-  # env vars set in terminal session
+  # This worker requires AWS env vars
   worker-aws:
     build:
       context: ../demo-agents/ubuntu
@@ -62,6 +61,21 @@ services:
     hostname: aws-worker-1
     volumes:
       - ../demo-agents/versions/aws/config.yml:/config.yml
+    env_file: "../.env"
+    networks:
+      - continuous-compliance
+
+
+  # This worker requires Azure env vars
+  worker-azure:
+    build:
+      context: ../demo-agents/azure
+      args:
+        AGENT_VERSION: 0.1.4
+    image: demo-agent:0.1.4
+    hostname: azure-worker-1
+    volumes:
+      - ../demo-agents/versions/azure/config.yml:/config.yml
     env_file: "../.env"
     networks:
       - continuous-compliance

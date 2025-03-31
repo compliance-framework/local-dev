@@ -11,6 +11,10 @@ start_api() {
     ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml up -d
 }
 
+stop_api() {
+    ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml down
+}
+
 start_agents() {
     ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/demo-agents.yml up -d
 }
@@ -19,7 +23,7 @@ start_all() {
     ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml -f ${CWD}/compose/demo-agents.yml up -d
 }
 
-stop() {
+stop_all() {
     ${COMPOSE_COMMAND} -f ${CWD}/compose/common.yml -f ${CWD}/compose/api.yml -f ${CWD}/compose/ui.yml -f ${CWD}/compose/demo-agents.yml down
 }
 
