@@ -74,7 +74,12 @@ docker-check:                                # Check docker command works
 	fi
 	@echo "...done."
 
-aws-check-creds:                             # Check AWS credentials exist
+init-env: aws-init-env azure-init-env        # Ensure the .env file is set up for use with dummy values
+
+aws-init-env:                                # Ensure the .env file is set up for use with dummy values for AWS
+	@for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN; do grep -q "^$$var=" .env || echo "$$var=" >> .env; done
+
+aws-check-creds: aws-init-env                      # Check AWS credentials exist
 	@echo "Checking AWS creds..."
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
@@ -90,7 +95,7 @@ aws-check-creds:                             # Check AWS credentials exist
 	fi
 	@echo "...done."
 
-aws-get-sts:                                 # Update .env file with aws details
+aws-get-sts: aws-init-env                          # Update .env file with aws details
 	@echo "Getting AWS creds..."
 	@aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600 | tee | grep -E '(Key|Token)' | sed 's/^[^"]*"\([a-zA-Z]*\)": "\([^"]*\)",/\1=\2/' | sed 's/AccessKeyId/AWS_ACCESS_KEY_ID/;s/SecretAccessKey/AWS_SECRET_ACCESS_KEY/;s/SessionToken/AWS_SESSION_TOKEN/' | while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
 	@echo "...done."
@@ -98,6 +103,9 @@ aws-get-sts:                                 # Update .env file with aws details
 	@echo "================================================================================"
 	@echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"
 	@echo "================================================================================"
+
+azure-init-env: Ensure the .env file is set up for use with dummy values for Azure
+	@for var in AZURE_SUBSCRIPTION_ID AZURE_CLIENT_SECRET AZURE_CLIENT_ID AZURE_TENANT_ID; do grep -q "^$$var=" .env || echo "$$var=" >> .env; done
 
 azure-check-tools:
 	@if ! command -v az &>/dev/null; then \
@@ -107,7 +115,16 @@ azure-check-tools:
 		echo "✅ az installed."; \
 	fi
 
-azure-check-creds: azure-check-tools
+azure-check-subscription-id: azure-check-tools
+	@echo "Checking subscription id..."
+	@if [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
+		echo "Azure subscription ID not set: Please export AZURE_SUBSCRIPTION_ID."; \
+		exit 1; \
+	fi
+	@if [ "$$AZURE_SUBSCRIPTION_ID" != "$$(az account show --query id --output tsv)" ]; then echo "AZURE_SUBSCRIPTION_ID different from output of: az account show --query id --output tsv"; fi
+	@echo "...done."
+
+azure-check-creds: azure-check-subscription-id azure-check-tools
 	@echo "Checking Azure creds..."
 	@if [ -z "$$AZURE_CLIENT_ID" ] || [ -z "$$AZURE_CLIENT_SECRET" ] || [ -z "$$AZURE_TENANT_ID" ] || [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
 		echo "Azure credentials not set. Please export AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID."; \
@@ -115,10 +132,18 @@ azure-check-creds: azure-check-tools
 	fi
 	@echo "...done."
 
-azure-create-service-principal: azure-check-creds
-	@az ad sp create-for-rbac --name terraform-sp \
+azure-create-service-principal: azure-init-env azure-check-subscription-id
+	@echo "Getting Azure creds and updating .env file..."
+	@az ad sp create-for-rbac \
+		--name terraform-sp-$(USER) \
 		--role Contributor \
-		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID)
+		--scopes /subscriptions/$(AZURE_SUBSCRIPTION_ID) | \
+			grep -E "(appId|password|tenant)" | \
+			sed 's/",/"/' | \
+			sed 's/^[^"]*"\([a-zA-Z]*\)": "\([^"]*\)"/\1=\2/' | \
+			sed 's/appId/AZURE_CLIENT_ID/;s/password/AZURE_CLIENT_SECRET/;s/tenant/AZURE_TENANT_ID/' | \
+			while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
+	@echo "... done, now 'source .env', followed by: 'export AZURE_CLIENT_ID AZURE_CLIENT_SECRET AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID'"
 
 azure-login: azure-check-creds
 	@az login --service-principal \
