@@ -12,3 +12,18 @@ plugins:
     labels:
       type: azure
       service: vms
+  azure_psql_db:
+    source: ghcr.io/compliance-framework/plugin-azure-db-psql:v0.1.0
+    policies:
+      - ghcr.io/compliance-framework/plugin-azure-db-psql-policies:latest
+    labels:
+      type: azure
+      service: db
+      engine: postgres
+  azure_networking:
+    source: ghcr.io/compliance-framework/plugin-azure-networking-security:v0.1.0
+    policies:
+      - ghcr.io/compliance-framework/plugin-azure-networking-security-policies:latest
+    labels:
+      type: azure
+      service: security-group
