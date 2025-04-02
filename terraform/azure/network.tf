@@ -23,7 +23,7 @@ resource "azurerm_subnet" "db_subnet" {
 
     service_delegation {
       name    = "Microsoft.DBforPostgreSQL/flexibleServers"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
     }
   }
 }
@@ -33,6 +33,18 @@ resource "azurerm_network_security_group" "custom_sg" {
   name                = "custom-sg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "disallow-internet"
+    priority                   = 1000
+    direction                  = "Outbound"
+    access                     = "Deny"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 # Default security group (simulated by not defining custom rules)
@@ -40,7 +52,51 @@ resource "azurerm_network_security_group" "default_sg" {
   name                = "default-sg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "disallow-internet"
+    priority                   = 1000
+    direction                  = "Outbound"
+    access                     = "Deny"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
+
+# Non-compliant security group (simulated by allowing all traffic)
+resource "azurerm_network_security_group" "noncompliant_sg" {
+  name                = "noncompliant-sg"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "allow-all-out"
+    priority                   = 1000
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allow-all-in"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
 
 resource "azurerm_network_interface" "vm_nic_compliant" {
   name                = "nic-compliant"

@@ -31,7 +31,8 @@ resource "azurerm_postgresql_flexible_server" "psqlserver_compliant" {
   backup_retention_days         = 7
   public_network_access_enabled = false
   high_availability {
-    mode = "SameZone"
+    mode                      = "SameZone"
+    standby_availability_zone = "1"
   }
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.dns_vnet_link]
@@ -57,23 +58,3 @@ resource "azurerm_postgresql_flexible_server" "psqlserver_noncompliant" {
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.dns_vnet_link]
 }
-
-# resource "azurerm_postgresql_server" "psqlserver_noncompliant" {
-#   name                = "psqlserver-noncompliant"
-#   location            = azurerm_resource_group.rg.location
-#   resource_group_name = azurerm_resource_group.rg.name
-#
-#   administrator_login          = "psqladmin"
-#   administrator_login_password = "supersecretpassword123$!"
-#
-#   sku_name   = "GP_Gen5_4"
-#   version    = "11"
-#   storage_mb = 640000
-#
-#   geo_redundant_backup_enabled = false
-#   auto_grow_enabled            = false
-#
-#   public_network_access_enabled    = false
-#   ssl_enforcement_enabled          = true
-#   ssl_minimal_tls_version_enforced = "TLS1_2"
-# }
