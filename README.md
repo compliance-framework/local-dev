@@ -46,6 +46,25 @@ Then, if you want to bring the services up (or restart):
 make compose-restart
 ```
 
+### Uploading Catalogs
+
+```shell
+curl --request POST \
+  --url http://localhost:8080/api/catalogs \
+  --header 'Content-Type: multipart/form-data' \
+  --form file=@./catalogs/SAMA_CSF_1.0_catalog.json
+  
+curl --request POST \
+  --url http://localhost:8080/api/catalogs \
+  --header 'Content-Type: multipart/form-data' \
+  --form file=@./catalogs/SAMA_ITGF_1.0_catalog.json
+  
+curl --request POST \
+  --url http://localhost:8080/api/catalogs \
+  --header 'Content-Type: multipart/form-data' \
+  --form file=@./catalogs/NIST_SP-800-53_rev5_catalog.json
+```
+
 ### Azure setup
 
 #### Azure Setup Prerequisites
