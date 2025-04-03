@@ -84,14 +84,14 @@ aws-check-creds: aws-init-env                      # Check AWS credentials exist
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
 		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
 		echo "================================================================================"; \
-		echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"; \
+		echo "Now run: source <(grep '^[A-Z_]' .env | sed 's/^/export /')"; \
 		echo "================================================================================"; \
 		exit 1; \
 	fi
 	@if aws sts get-caller-identity >/dev/null 2>&1; then \
 		true; \
 	else \
-		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running 'make aws-get-sts && source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN' before re-running"; \
+		echo "'aws sts get-caller-identity' was not run successfully, make sure you are logged in by running: make aws-get-sts && source <(grep '^[A-Z_]' .env | sed 's/^/export /')"; \
 	fi
 	@echo "...done."
 
@@ -101,7 +101,7 @@ aws-get-sts: aws-init-env                          # Update .env file with aws d
 	@echo "...done."
 	@echo "Now run..."
 	@echo "================================================================================"
-	@echo "source .env; export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN"
+	@echo "source <(grep '^[A-Z_]' .env | sed 's/^/export /')"
 	@echo "================================================================================"
 
 azure-init-env: Ensure the .env file is set up for use with dummy values for Azure
@@ -143,7 +143,7 @@ azure-create-service-principal: azure-init-env azure-check-subscription-id
 			sed 's/^[^"]*"\([a-zA-Z]*\)": "\([^"]*\)"/\1=\2/' | \
 			sed 's/appId/AZURE_CLIENT_ID/;s/password/AZURE_CLIENT_SECRET/;s/tenant/AZURE_TENANT_ID/' | \
 			while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
-	@echo "... done, now 'source .env', followed by: 'export AZURE_CLIENT_ID AZURE_CLIENT_SECRET AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID'"
+	@echo "... done, now run: source <(grep '^[A-Z_]' .env | sed 's/^/export /')"
 
 azure-login: azure-check-creds
 	@az login --service-principal \
