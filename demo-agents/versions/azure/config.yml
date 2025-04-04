@@ -6,9 +6,24 @@ api:
 
 plugins:
   azure_vms:
-    source: ghcr.io/compliance-framework/plugin-azure-vms:v0.0.1
+    source: ghcr.io/compliance-framework/plugin-azure-vms:v0.0.2
     policies:
       - ghcr.io/compliance-framework/plugin-azure-vm-policies:v0.0.1
     labels:
       type: azure
       service: vms
+  azure_psql_db:
+    source: ghcr.io/compliance-framework/plugin-azure-db-psql:v0.1.4
+    policies:
+      - ghcr.io/compliance-framework/plugin-azure-db-psql-policies:latest
+    labels:
+      type: azure
+      service: db
+      engine: postgres
+  azure_networking:
+    source: ghcr.io/compliance-framework/plugin-azure-networking-security:v0.1.1
+    policies:
+      - ghcr.io/compliance-framework/plugin-azure-networking-security-policies:latest
+    labels:
+      type: azure
+      service: security-group
