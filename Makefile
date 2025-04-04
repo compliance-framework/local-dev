@@ -29,10 +29,10 @@ K8S_NAMESPACE=ccf
 COMPOSE_COMMAND   := $(shell echo $$COMPOSE_COMMAND)
 
 ## DEMO
-demo-go-check: aws-check-creds
+demo-go-check: docker-check aws-check-creds azure-check-creds
 demo-restart: demo-go-check demo-destroy demo-up                            ## Tear down whole demo, then bring up
 demo-destroy: demo-go-check compose-destroy aws-tf-destroy azure-tf-destroy ## Tear down whole demo
-demo-up:      demo-go-check aws-tf azure-tf compose-up                      ## Start up demo
+demo-up:      demo-go-check aws-tf azure-tf compose-up load-catalogs        ## Start up demo
 
 ## DEV
 compose-restart: compose-down compose-up     ## Tear down environment and setup new one. (Preserves Volumes)
@@ -61,14 +61,23 @@ agents-only-restart: compose-down            ## Bring up common services and age
 build: docker-check                          ## Bring up common services and agents only
 	@COMPOSE_COMMAND="$(COMPOSE_COMMAND)" ./hack/local-shared/do build
 
+load-catalogs:                               ## Load in the catalogs for the demo
+	@echo "================================================================================"
+	@echo "Loading catalogs... (duplicate errors are OK)"
+	@curl --request POST --url http://localhost:8080/api/catalogs --header 'Content-Type: multipart/form-data' --form file=@./catalogs/SAMA_CSF_1.0_catalog.json
+	@curl --request POST --url http://localhost:8080/api/catalogs --header 'Content-Type: multipart/form-data' --form file=@./catalogs/SAMA_ITGF_1.0_catalog.json
+	@curl --request POST --url http://localhost:8080/api/catalogs --header 'Content-Type: multipart/form-data' --form file=@./catalogs/NIST_SP-800-53_rev5_catalog.json
+	@echo "... done"
+
 ## PRE-FLIGHT CHECKS
 docker-check:                                # Check docker command works
+	@echo "================================================================================"
 	@echo "Checking compose command..."
 	@if eval $$COMPOSE_COMMAND ls >/dev/null 2>&1 || podman info >/dev/null 2>&1; then \
 		true; \
 	else \
 		echo '================================================================================'; \
-		echo 'Docker should be set up, eg: export COMPOSE_COMMAND="docker compose"'; \
+		echo 'Docker should be running and the compose command set up, eg: export COMPOSE_COMMAND="docker compose"'; \
 		echo '================================================================================'; \
 		exit 1; \
 	fi
@@ -80,11 +89,12 @@ aws-init-env:                                # Ensure the .env file is set up fo
 	@for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN; do grep -q "^$$var=" .env || echo "$$var=" >> .env; done
 
 aws-check-creds: aws-init-env                      # Check AWS credentials exist
+	@echo "================================================================================"
 	@echo "Checking AWS creds..."
 	@if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$AWS_SECRET_ACCESS_KEY" ] || [ -z "$$AWS_SESSION_TOKEN" ]; then \
-		echo "AWS credentials not set. Please export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."; \
 		echo "================================================================================"; \
-		echo "Now run: source <(grep '^[A-Z_]' .env | sed 's/^/export /')"; \
+		echo "AWS credentials not set (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN)."; \
+		echo "Run: source <(grep '^[A-Z_]' .env | sed 's/^/export /')"; \
 		echo "================================================================================"; \
 		exit 1; \
 	fi
@@ -96,15 +106,13 @@ aws-check-creds: aws-init-env                      # Check AWS credentials exist
 	@echo "...done."
 
 aws-get-sts: aws-init-env                          # Update .env file with aws details
+	@echo "================================================================================"
 	@echo "Getting AWS creds..."
 	@aws sts get-session-token --profile ccf-demo-1 --duration-seconds 129600 | tee | grep -E '(Key|Token)' | sed 's/^[^"]*"\([a-zA-Z]*\)": "\([^"]*\)",/\1=\2/' | sed 's/AccessKeyId/AWS_ACCESS_KEY_ID/;s/SecretAccessKey/AWS_SECRET_ACCESS_KEY/;s/SessionToken/AWS_SESSION_TOKEN/' | while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
+	@echo "Run: source <(grep '^[A-Z_]' .env | sed 's/^/export /')"
 	@echo "...done."
-	@echo "Now run..."
-	@echo "================================================================================"
-	@echo "source <(grep '^[A-Z_]' .env | sed 's/^/export /')"
-	@echo "================================================================================"
 
-azure-init-env: Ensure the .env file is set up for use with dummy values for Azure
+azure-init-env:                                     # Ensure the .env file is set up for use with dummy values for Azure
 	@for var in AZURE_SUBSCRIPTION_ID AZURE_CLIENT_SECRET AZURE_CLIENT_ID AZURE_TENANT_ID; do grep -q "^$$var=" .env || echo "$$var=" >> .env; done
 
 azure-check-tools:
@@ -116,6 +124,7 @@ azure-check-tools:
 	fi
 
 azure-check-subscription-id: azure-check-tools
+	@echo "================================================================================"
 	@echo "Checking subscription id..."
 	@if [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
 		echo "Azure subscription ID not set: Please export AZURE_SUBSCRIPTION_ID."; \
@@ -125,6 +134,7 @@ azure-check-subscription-id: azure-check-tools
 	@echo "...done."
 
 azure-check-creds: azure-check-subscription-id azure-check-tools
+	@echo "================================================================================"
 	@echo "Checking Azure creds..."
 	@if [ -z "$$AZURE_CLIENT_ID" ] || [ -z "$$AZURE_CLIENT_SECRET" ] || [ -z "$$AZURE_TENANT_ID" ] || [ -z "$$AZURE_SUBSCRIPTION_ID" ]; then \
 		echo "Azure credentials not set. Please export AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID."; \
@@ -132,7 +142,8 @@ azure-check-creds: azure-check-subscription-id azure-check-tools
 	fi
 	@echo "...done."
 
-azure-create-service-principal: azure-init-env azure-check-subscription-id
+azure-create-service-principal: azure-init-env azure-check-subscription-id    ## Get Azure creds (requires AZURE_SUBSCRIPTION_ID in env)
+	@echo "================================================================================"
 	@echo "Getting Azure creds and updating .env file..."
 	@az ad sp create-for-rbac \
 		--name terraform-sp-$(USER) \
@@ -145,7 +156,7 @@ azure-create-service-principal: azure-init-env azure-check-subscription-id
 			while IFS='=' read -r key value; do sed -i.bak "s|^$$key=.*|$$key=$$value|" .env; done
 	@echo "... done, now run: source <(grep '^[A-Z_]' .env | sed 's/^/export /')"
 
-azure-login: azure-check-creds
+azure-login: azure-check-creds             ## Log in to Azure, using already-setup creds in env
 	@az login --service-principal \
 	  --username "$(AZURE_CLIENT_ID)" \
 	  --password "$(AZURE_CLIENT_SECRET)" \

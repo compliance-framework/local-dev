@@ -53,12 +53,12 @@ curl --request POST \
   --url http://localhost:8080/api/catalogs \
   --header 'Content-Type: multipart/form-data' \
   --form file=@./catalogs/SAMA_CSF_1.0_catalog.json
-  
+
 curl --request POST \
   --url http://localhost:8080/api/catalogs \
   --header 'Content-Type: multipart/form-data' \
   --form file=@./catalogs/SAMA_ITGF_1.0_catalog.json
-  
+
 curl --request POST \
   --url http://localhost:8080/api/catalogs \
   --header 'Content-Type: multipart/form-data' \
@@ -73,6 +73,8 @@ curl --request POST \
 
 - Go to onePassword and get azure creds (`Azure CCF Login`)
 
+### Azure Setup Steps
+
 - Copy the creds to .env for export
 
 - `make azure-login`
@@ -80,7 +82,9 @@ curl --request POST \
 If you wish to to create them from scratch and provision elsewhere:
 
 - `make azure-create-service-principal`
+
 - take response from this and export new creds
+
 - `make azure-login`
 
 ### AWS Setup
@@ -119,7 +123,7 @@ make aws-get-sts
 5. Set up env variables
 
 ```
-source .env && export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN`
+source <(grep '^[A-Z_]' .env | sed 's/^/export /')
 ```
 
 6. Set up Terraform
